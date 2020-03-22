@@ -147,8 +147,8 @@
                 </a-input>
             </a-form-item>
             <a-form-item label="出生日期" v-bind="formlayout" >
-                <a-date-picker  format='YYYY/MM/DD' style="width:100%" v-decorator="['birth',{
-                    initialValue: moment(record.birth, 'YYYY/MM/DD')
+                <a-date-picker  format='YYYY-MM-DD' style="width:100%" v-decorator="['birth',{
+                    initialValue: moment(new Date(record.birth), 'YYYY-MM-DD')
                 }]" />
             </a-form-item>
             
@@ -156,7 +156,7 @@
                 <a-upload
                     v-decorator="['avatar']"
                     name="file"
-                    action="http://localhost:8080/api/upload"
+                    action="/api/upload"
                     :headers="headers"
                     @change="handleChange"
                     :fileList="fileList"
@@ -318,13 +318,22 @@ export default {
                 // }
                 if (!err) {
                     console.log(values);
-                    values._id = this.record._id
+                    values.oldname = this.record.username
                     this.$axios.post('/updateUser',values).then(res =>{
-                        this.getData()
-                        this.form.resetFields();
-                        this.fileList = []
-                        this.edit = false
-                        console.log(res.data)
+                        if(res.data.flag == 1){
+                            this.$notification['error']({
+                                message: '修改失败',
+                                description:
+                                    '用户名重复',
+                            });
+                        }else{
+                            this.getData()
+                            this.form.resetFields();
+                            this.fileList = []
+                            this.edit = false
+                            console.log(res.data)
+                        }
+                        
                     })
                 }
             });

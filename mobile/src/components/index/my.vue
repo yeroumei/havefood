@@ -4,22 +4,48 @@
 			<div class="bar">
 				
 				<div class="user" v-if="$store.state.userinfo.username">
-					<img class="userpic" :src="$store.state.userinfo.avatar"/>
+					<!-- <nut-avatar 
+						@activeAvatar="activeAvatar"
+						bgIcon=""
+						:bgImage="$store.state.userinfo.avatar"
+						class="userpic"
+						> -->
+						<nut-uploader
+							name="file"
+							url="/api/upload"
+							@success="onSuccess"
+							@fail="onFail"
+							@showMsg="showMsgFn"
+							class="userpic" 
+						>
+						<img width="100%" height="100%" style="border-radius:100%" :src="$store.state.userinfo.avatar"/>
+						</nut-uploader>   
+					<!-- </nut-avatar> -->
 					<router-link to="/edit_info">
 						<h2 class="tologin">{{$store.state.userinfo.username}}</h2>
 						<span class="des">正在通往美食达人的路上..</span>
 					</router-link>
 				</div>
 				<div class="user" v-else>
-					<img class="userpic" src="../../assets/images/userpic.png"/>
+					<nut-avatar 
+						@activeAvatar="activeAvatar"
+						 class="userpic"
+						 bgColor="none"
+						>
+						<nut-uploader
+							name="file"
+							url="/api/upload"
+							@success="onSuccess"
+							@fail="onFail"
+							@showMsg="showMsgFn"
+						></nut-uploader>   
+					</nut-avatar>
 					<router-link to="/login" >
 						<h2 class="tologin">点击登录</h2>
 						<span class="des">有美食，带你发现更多美食..</span>
 					</router-link>
 				</div>
-				<!-- <router-link to="/logout"  v-if="$store.state.userinfo.username"> -->
 				    <span class="tips" @click="account"> 账号管理 > </span>
-				<!-- </router-link> -->
 			</div>
 		</header>
 		<ul style="overflow: hidden;">
@@ -57,12 +83,18 @@ import { MessageBox } from 'mint-ui';
   		// components: { Edit },
 		data(){
 			return{
-                medal:[],
-                // userdata:'',
+				medal:[],
 			}
 		},
 		mounted(){
-			// this.getuser()
+			console.log(this.$store.state.userinfo.number,'this.$store.state.userinfo.number ')
+			if(this.$store.state.userinfo.number == ''){
+				MessageBox.confirm('请先完善个人重要信息').then(action => {
+					this.$router.push({name:'edit_info'})
+				},cancel =>{
+					console.log(cancel,'取消')
+				});
+			}
         },
         computed:{
             userinfo(){
@@ -70,23 +102,45 @@ import { MessageBox } from 'mint-ui';
             }
         },
 		methods:{
-			// getuser(){
-            //     console.log(this.$store.state.islogin.username)
-            //     this.$axios.get('/userList',{
-            //         params:{
-            //             username:this.$store.state.islogin.username
-            //         }
-            //     }).then(res=>{
-            //         this.userdata = res.data
-            //         console.log(this.userdata)
-            //     })
-            // },
             account(){
                 if(!this.$store.state.islogin){
                     MessageBox.alert('请先登录', '提示');
                 }else{
                     this.$router.push({name:'logout'})
                 }
+			},
+			activeAvatar(){
+				console.log('更换头像')
+
+			},
+			onSuccess(file,res){
+				console.log(JSON.parse(res),'file,res')
+				this.$axios.post('/updateUser',{
+					oldname:this.$store.state.userinfo.username,
+					username:this.$store.state.userinfo.username,
+					avatar:JSON.parse(res).result.url
+				}).then(res =>{
+					if(res.data.flag == 1){
+						this.$toast.fail('上传失败');
+					}else{
+						this.$axios.get('/userList',{ //更新登录数据
+							params:{
+								username:this.$store.state.userinfo.username
+							}
+						}).then(res=>{
+							console.log(res.data)
+							this.$store.commit('getuserinfo',{userinfo:res.data}) 
+						})
+						this.$toast.success('修改成功');
+					}
+					
+				})
+			},
+			onFail(file,res){
+				this.$toast.fail('上传失败！');
+			},
+			showMsgFn(msg){
+				this.$toast.text(msg);
 			},
 			
 		}
@@ -121,9 +175,10 @@ import { MessageBox } from 'mint-ui';
 	    position: relative;
 	}
 	.userpic{
-		display: block;
-		width: 25%;
-		border: 3px solid rgba(255,255,255,0.5);
+		display: inline-block;
+		width: 5em;
+		height: 5em;
+		border: 2px solid rgba(255,255,255,0.5);
 		border-radius: 50%;
 		position: absolute;
 		left: -15px;
@@ -221,4 +276,5 @@ import { MessageBox } from 'mint-ui';
 	.new{
 		margin: 10px 0;
 	}
+	
 </style>

@@ -2,19 +2,19 @@
     <main>
 		<mt-header class="t" title="账号管理">
             <mt-button icon="back" @click="back()" slot="left" class="l">返回</mt-button>
-		  	<!-- <router-link to="/register" slot="right">
-		  		<mt-button class="r">注册</mt-button>
-	  	  	</router-link> -->
 		</mt-header>
-		<mt-cell :title="$store.state.userinfo.username"  to="/login" is-link class="new">
-		  <img slot="icon" :src="$store.state.userinfo.avatar" class="avatar">
+		<mt-cell :title="$store.state.userinfo.username"  to="/edit_info" is-link class="new">
+        <i slot="icon" v-if="$store.state.userinfo.avatar" class="avatar">
+		        <img width="100%" height="100%" :src="$store.state.userinfo.avatar">
+        </i>
+        <i slot="icon" v-else class="avatar">
+		        <img width="100%" height="100%" src="../assets/images/userpic.png">
+        </i>
 		</mt-cell>
-        <!-- <router-link to="/login"> -->
-			<button @click="logout" class="out">退出当前账号</button>
-	  	<!-- </router-link> -->
+        
+		<button @click="logout" class="out">退出当前账号</button>
 	</main>
 </template>
-
 <script>
 import { Toast } from 'mint-ui';
 export default {
@@ -46,6 +46,9 @@ export default {
         //         // console.log(this.userdata)
         //     })
         // },
+        activeAvatar(){
+            alert('kkkkk')
+        },
         logout(){ //退出账号
             // console.log(this.$store.state.userinfo.intime,'this.$store.state.userinfo.intime')
             let date = new Date()
@@ -98,9 +101,10 @@ main{
 		color: #ff4c39;
 	}
     .avatar{
+        display: inline-block;
         border-radius: 50%;
         width: 13%;
-        height: auto;
+        height: 100%;
         border: 0.7px solid #c8c8cd;
         margin-right: 0.5em;
     }

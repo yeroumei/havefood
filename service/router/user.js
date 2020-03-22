@@ -51,15 +51,17 @@ router.post('/register', function (req, res) {
     }, function (err, data) {
             if (data) {
                 res.send({
-                    flag: 1  //用户名已经被注册
+                    flag: 1,  //用户名已经被注册
+                    des:'该用户名已经被注册'
                 })
             } else {
                 User.create(postdata, function (err, data) {
                     if (err) throw err;
                     res.send({
-                        flag: 0  //注册成功
+                        flag: 0,  //注册成功
+                        des:'注册成功'
                     })
-                    console.log(data)
+                    // console.log(data)
                     // res.redirect('/userList'); //重定向
                 })
             }
@@ -91,7 +93,7 @@ router.post('/addUser', function (req, res) {
 // 查询用户信息路由
 router.get('/userList', function (req, res) {
     let userList = ''
-    console.log(req.query,'req.query.username')
+    // console.log(req.query,'req.query.username')
     // if (req.query.username) {
     //     userList = User.find({username:req.query.username}, function (err, data) {
     //         if (err) throw  err;
@@ -116,12 +118,26 @@ router.get('/userList', function (req, res) {
 
 //修改用户信息
 router.post('/updateUser', (req, res, next) => {
-    let filter = { _id: req.body._id }
-    User.update(filter,{$set:req.body}).then((data) => {
-        console.log(data)
-        if (data.nModified === 1) return res.json({code: 0, msg: '修改成功'}) // 修改成功
-        if (data.n === 0) return res.json({code: -1, msg: '用户不存在'}) // 查询条数为0
-        res.json({code: -1, msg: '错误，请检查后台代码'})
+    User.findOne({ 
+        username: req.body.username  //用户名不重复
+    }, function (err, data) {
+        // console.log(data)
+        if (data && data.username !== req.body.oldname) {
+            res.send({
+                flag: 1,  //用户名已存在
+                des:'用户名已存在'
+            })
+        } else {
+            // console.log(data,'ielsedata')
+            let filter = { username: req.body.oldname }
+            req.body.birth = new Date(req.body.birth).toLocaleDateString() //格式化前端传来的日期字符串
+            User.updateOne(filter,{$set:req.body}).then((data) => {
+                console.log(data,'datatatatat')
+                if (data.nModified === 1)  return res.json({code: 0, msg: '修改成功'}) // 修改成功
+                if (data.n === 0) return res.json({code: -1, msg: '用户不存在'}) // 查询条数为0
+                res.json({code: -1, msg: '错误，请检查后台代码'})
+            })
+        }
     })
 })
 
@@ -129,7 +145,6 @@ router.post('/updateUser', (req, res, next) => {
 router.post('/deleteUser', (req, res, next) => {
     let filter = { _id: req.body._id }
     User.remove(filter).then((data) => {
-        console.log(data)
         if (data.nModified === 1) return res.json({code: 0, msg: '修改成功'}) // 修改成功
         if (data.n === 0) return res.json({code: -1, msg: '用户不存在'}) // 查询条数为0
         res.json({code: -1, msg: '错误，请检查后台代码'})

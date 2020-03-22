@@ -4,7 +4,7 @@
         <a-form :form='form' class="modal">
             <a-form-item label="用户名" v-bind="formlayout">
                 <a-input v-decorator="['username',{
-                    rules:[{required:true,message:'请输入用户名'},{pattern:/^[0-9a-zA-Z_]+$/,message:'请不要输入特殊符号'}]
+                    rules:[{required:true,message:'请输入用户名'}]
                 }]" placeholder="请输入用户名">
                 </a-input>
             </a-form-item>
@@ -111,8 +111,24 @@ export default {
                 if (!err) {
                     console.log(values);
                     this.$axios.post('/addUser',values).then(res =>{
-                        this.form.resetFields();
-                    	this.$emit('omodal',false) //关闭弹窗
+                        if(res.data.flag == 1){
+                            this.$notification['error']({
+                                message: '添加失败',
+                                description:
+                                    '该用户名已存在',
+                            });
+                        }else if(res.data.flag == 0){
+                            this.form.resetFields();
+                            this.$emit('omodal',false) //关闭弹窗
+                        }else{
+                            this.$notification['error']({
+                                message: '错误',
+                                description:
+                                    '未知报错',
+                            });
+                        }
+                        
+                        
                     })
                 }
             });

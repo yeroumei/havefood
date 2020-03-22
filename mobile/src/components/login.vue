@@ -26,12 +26,12 @@ export default {
     data(){
         return{
 
-        }
+		}
     },
     methods:{
         back(){
             this.$router.go(-1)
-        },
+		},
         check(){
             var username = document.getElementById('username').value;
             var password = document.getElementById('password').value;
@@ -55,8 +55,14 @@ export default {
                     console.log(res.data)
                     if(res.data.username == username && res.data.password == password){
                         let date = new Date()
-                        this.$store.commit('getislogin', {islogin: true }) 
-						this.$store.commit('getuserinfo',{userinfo:res.data}) 
+						this.$store.commit('getislogin', {islogin: true })  //记录目前的登录状态
+						this.$axios.get('/userList',{  //记录当前登录的用户信息
+							params:{
+								username:res.data.username 
+							}
+						}).then(res=>{
+							this.$store.commit('getuserinfo',{userinfo:res.data}) 
+						})
                         this.$router.replace({name:'my'})
                     }else{
                         Toast({
