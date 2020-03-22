@@ -9,6 +9,13 @@ import Mint from 'mint-ui';
 import 'mint-ui/lib/style.css'
 Vue.use(Mint);
 
+//引入NutUI全部组件
+import NutUI from '@nutui/nutui';
+import '@nutui/nutui/dist/nutui.css';
+NutUI.install(Vue);
+
+
+
 //引入swiper轮播插件
 import Swiper from 'swiper';
 import VueAwesomeSwiper from 'vue-awesome-swiper';
@@ -38,6 +45,30 @@ router.afterEach((to,from,next) => {  //进入个人中心页面之前刷新一�
     
   }
   })
+
+  //日期格式化
+  Date.prototype.format = function(format) {
+    var date = {
+           "M+": this.getMonth() + 1,
+           "d+": this.getDate(),
+           "h+": this.getHours(),
+           "m+": this.getMinutes(),
+           "s+": this.getSeconds(),
+           "q+": Math.floor((this.getMonth() + 3) / 3),
+           "S+": this.getMilliseconds()
+    };
+    if (/(y+)/i.test(format)) {
+           format = format.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length));
+    }
+    for (var k in date) {
+           if (new RegExp("(" + k + ")").test(format)) {
+                  format = format.replace(RegExp.$1, RegExp.$1.length == 1
+                         ? date[k] : ("00" + date[k]).substr(("" + date[k]).length));
+           }
+    }
+    return format;
+}
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

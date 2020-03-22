@@ -48,4 +48,24 @@ p{
 	padding: 0;
 	margin: 0;
 }
+/* 单元框样式 */
+.mint-radiolist-title {
+    font-size: 16px;
+    margin: 10px;
+    display: block;
+    color: #888;
+}
+.mint-radio-input:checked + .mint-radio-core {
+    background-color: #ff4c39;
+    border-color: #ff4c39;
+}
+/* 切换头像时的上传图片覆盖头像上方 */
+.nut-avatar .text{
+		height: 100%;
+}
+.nut-uploader{
+    width: 100%;
+		height: 100%;
+    /* background-color: #ff4c39; */
+}
 </style>
