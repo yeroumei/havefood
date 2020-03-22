@@ -111,6 +111,20 @@
                 }]" placeholder="请输入类别名">
                 </a-input>
             </a-form-item>
+            <a-form-item label="分类图标" v-bind="formlayout" >
+                <a-upload
+                    v-decorator="['icon']"
+                    name="file"
+                    action="/api/upload"
+                    :headers="headers"
+                    @change="handleChange"
+                    :fileList="fileList"
+                    :beforeUpload="beforeUpload"
+                    list-type="picture"
+                >
+                    <a-button> <a-icon type="upload" /> 上传图标 </a-button>
+                </a-upload>
+            </a-form-item>
             <a-form-item label="种类名" v-bind="formlayout">
                 <a-input v-for="item in num" v-decorator="[`kinds[${item-1}]`,{
                     rules:[{required:true,message:'请输入种类名'}]
@@ -134,16 +148,30 @@
     <a-modal title="重命名" v-model='rename' @cancel='cancelhandle' width='35%' @ok='renameClassify' cancelText="取消" okText="确定" :maskClosable='false'>
         <a-form :form='form2' class="modal">
             <a-form-item label="原类别名" v-bind="formlayout">
-                <a-input v-decorator="['oldname',{
+                <a-input v-decorator="['name',{
                     rules:[{required:true,message:'请输入类别名'}],initialValue:record.name
-                }]" disabled>
+                }]">
                 </a-input>
             </a-form-item>
-            <a-form-item label="新类别名" v-bind="formlayout">
+            <!-- <a-form-item label="新类别名" v-bind="formlayout">
                 <a-input v-decorator="['name',{
                     rules:[{required:true,message:'请输入类别名'}]
                 }]" placeholder="请输入类别名">
                 </a-input>
+            </a-form-item> -->
+            <a-form-item label="分类图标" v-bind="formlayout" >
+                <a-upload
+                    v-decorator="['icon']"
+                    name="file"
+                    action="/api/upload"
+                    :headers="headers"
+                    @change="handleChange"
+                    :fileList="fileList"
+                    :beforeUpload="beforeUpload"
+                    list-type="picture"
+                >
+                    <a-button> <a-icon type="upload" /> 上传图标 </a-button>
+                </a-upload>
             </a-form-item>
         </a-form>
     </a-modal>
@@ -188,58 +216,62 @@
 export default {
     data() {
         return {
-	    form1:this.$form.createForm(this),
-	    form2:this.$form.createForm(this),
-	    form3:this.$form.createForm(this),
-	    form4:this.$form.createForm(this),
-        searchText: "",
-        searchInput: null,
-        filters:'',
-        loading: false,
-        record:'',
-        create: false,
-        rename: false,
-        addkinds: false,
-        delkinds: false,
-        num:1,
-        pagination: {
-            defaultPageSize: 10,
-            showTotal: total => `共 ${total} 条数据`,
-            showSizeChanger: true,
-            pageSizeOptions: ["5", "10", "15", "20"],
-            onShowSizeChange: (current, pageSize) => (this.pageSize = pageSize)
-        },
-        formlayout:{
-            labelCol:{span:6},
-            wrapperCol:{span:14}
-        },
-        classifydata:[],
-        columns: [
-            {
-            title: "类别名",
-            dataIndex: "name",
-            key: "name",
-            scopedSlots: {
-                filterDropdown: "filterDropdown",
-                filterIcon: "filterIcon",
-                customRender: "customRender"
+            headers: {
+                authorization: 'authorization-text',
             },
-            onFilter: (value, record) =>
-                record.name
-                .toString()
-                .toLowerCase()
-                .includes(value.toLowerCase()),
-            onFilterDropdownVisibleChange: visible => {
-                if (visible) {
-                setTimeout(() => {
-                    this.searchInput.focus();
-                }, 0);
+            fileList:[],
+            form1:this.$form.createForm(this),
+            form2:this.$form.createForm(this),
+            form3:this.$form.createForm(this),
+            form4:this.$form.createForm(this),
+            searchText: "",
+            searchInput: null,
+            filters:'',
+            loading: false,
+            record:'',
+            create: false,
+            rename: false,
+            addkinds: false,
+            delkinds: false,
+            num:1,
+            pagination: {
+                defaultPageSize: 10,
+                showTotal: total => `共 ${total} 条数据`,
+                showSizeChanger: true,
+                pageSizeOptions: ["5", "10", "15", "20"],
+                onShowSizeChange: (current, pageSize) => (this.pageSize = pageSize)
+            },
+            formlayout:{
+                labelCol:{span:6},
+                wrapperCol:{span:14}
+            },
+            classifydata:[],
+            columns: [
+                {
+                title: "类别名",
+                dataIndex: "name",
+                key: "name",
+                scopedSlots: {
+                    filterDropdown: "filterDropdown",
+                    filterIcon: "filterIcon",
+                    customRender: "customRender"
+                },
+                onFilter: (value, record) =>
+                    record.name
+                    .toString()
+                    .toLowerCase()
+                    .includes(value.toLowerCase()),
+                onFilterDropdownVisibleChange: visible => {
+                    if (visible) {
+                    setTimeout(() => {
+                        this.searchInput.focus();
+                    }, 0);
+                    }
                 }
-            }
-            },
-            {title:'种类',dataIndex:'kinds',key:'kinds',customRender:(arr) => {return arr.join(' \\ ')}},
-            {title: '操作',dataIndex: 'operation',scopedSlots: { customRender: 'operation' }},
-        ]
+                },
+                {title:'种类',dataIndex:'kinds',key:'kinds',customRender:(arr) => {return arr.join(' \\ ')}},
+                {title: '操作',dataIndex: 'operation',scopedSlots: { customRender: 'operation' }},
+            ]
         };
     },
     mounted(){
@@ -319,9 +351,13 @@ export default {
             this.form1.validateFields((err, values) => {
                 if (!err) {
                     console.log(values);
+                    if(values.icon){
+                        values.icon = values.icon.file.response.result.url //获取服务器返回的图片地址
+                    }
                     this.$axios.post('/addClassify',values).then(res =>{
                         this.getData()
                         this.form1.resetFields();
+                        this.fileList = []
                         this.num = 1 //种类的输入框
                         this.create = false
                         console.log(res.data)
@@ -329,15 +365,85 @@ export default {
                 }
             });
         },
+        // 上传图片的相关方法
+        beforeUpload(file) {
+            /* 存储后缀名 */
+            let extName = '';
+            switch (file.type) {
+            case 'image/png':
+                extName = 'image/png';
+                break;
+            case 'image/x-png':
+                extName = 'image/x-png';
+                break;
+            case 'image/jpg':
+                extName = 'image/jpg';
+                break;
+            case 'image/jpeg':
+                extName = 'image/jpeg';
+                break;
+            }
+            const isJPG = file.type === extName;
+            console.log(isJPG,'isJPG')
+            if (!isJPG) {
+                this.$message.error('You can only upload JPG file!');
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            console.log(isLt2M,'isLt2M')
+            if (!isLt2M) {
+                this.$message.error('Image must smaller than 2MB!');
+            }
+            return isJPG && isLt2M;
+        },
+        handleChange(info) {
+            let fileList = [...info.fileList];
+            //限制只能传一个图片
+            fileList = fileList.slice(-1);
+            // 2. read from response and show file link
+            fileList = fileList.map(file => {
+            if (file.response) {
+                // Component will show file.url as link
+                file.url = file.response.url;
+            }
+                return file;
+            });
+            this.fileList = fileList;
+            console.log(this.fileList, 'this.fileList');
+            if(info.file.response){
+                if (info.file.status === 'removed') { //移除，也从服务端中移除
+                    this.$axios.post('/deleteImg',{
+                        url: info.file.response.result.url
+                    }).then(res => {
+                        console.log(res.data,'已经从服务器上移除');
+                    })
+                }
+                if (info.file.status !== 'uploading') {
+                }
+                if (info.file.status === 'done') {
+                    this.$message.success(`${info.file.name} file uploaded successfully`);
+                } else if (info.file.status === 'error') {
+                    this.$message.error(`${info.file.name} file upload failed.`);
+                }
+            }else{
+                for(var i=0;i<info.fileList.length;i++){ //显示有误，没上传到服务器
+                    info.fileList[i].status = 'error'
+                }
+            }
+        },
         renameClassify(e){ //改名
             e.preventDefault();
             this.form2.validateFields((err, values) => {
                 if (!err) {
                     console.log(values);
                     values._id = this.record._id
+                    // values.oldname = this.record.name
+                    if(values.icon){
+                        values.icon = values.icon.file.response.result.url //获取服务器返回的图片地址
+                    }
                     this.$axios.post('/updateClassify',values).then(res =>{
                         this.getData()
                         this.form2.resetFields();
+                        this.fileList = []
                         this.rename = false
                         console.log(res.data)
                     })
