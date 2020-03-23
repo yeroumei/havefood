@@ -7,23 +7,23 @@
     <a-row style="margin:1rem;background:#fff">
         <a-card title="食谱信息" hoverable>
             <div style="margin:0 0 1em 0 ">
-                <!-- <a-tooltip placement='top'>
+                <a-tooltip placement='top'>
                     <template slot='title'>
                         <span>创建</span>
                     </template>
-                    <a-button type="primary" icon='file-add' @click="create = true"></a-button>
-                </a-tooltip> -->
-                <a-tooltip placement='top'>
-                    <template slot='title'>
-                        <span>查看详情</span>
-                    </template>
-                    <a-button type="primary" icon='ellipsis' @click="openmodal('detail')"></a-button>
+                    <a-button type="primary" icon='file-add' @click="add = true"></a-button>
                 </a-tooltip>
                 <a-tooltip placement='top'>
                     <template slot='title'>
                         <span>编辑</span>
                     </template>
                     <a-button type="primary" style="margin-left:1em" icon='form' @click="openmodal('modify')"></a-button>
+                </a-tooltip>
+                <a-tooltip placement='top'>
+                    <template slot='title'>
+                        <span>查看详情</span>
+                    </template>
+                    <a-button type="primary" style="margin-left:1em" icon='ellipsis' @click="openmodal('detail')"></a-button>
                 </a-tooltip>
                 <a-tooltip placement='top'>
                     <template slot='title'>
@@ -97,6 +97,7 @@
             </a-table>
         </a-card>
     </a-row>
+    <Create :cc='add' @omodal='changemodal'></Create>
     <Edit :ee='edit' :record = "record" @omodal='changemodal'></Edit>
     <Details :dd='look' :record = "record" @omodal='changemodal'></Details>
 </a-row>
@@ -104,16 +105,17 @@
 
 <script>
 import moment from 'moment';
+import Create from './recipepro/createrecipe'
 import Edit from './recipepro/editrecipe'
 import Details from './recipepro/detail'
 export default {
-    components: { Edit, Details },
+    components: { Edit, Details, Create },
     data() {
         return {
         searchText: "",
         searchInput: null,
         loading: false,
-        create:false,
+        add:false,
         edit:false,
         look:false,
         filters:'',
@@ -219,6 +221,7 @@ export default {
             }
         },
         changemodal(val){
+            this.add=val
             this.edit=val
             this.look=val
             this.getData()
@@ -248,14 +251,14 @@ export default {
             var _this = this
             this.$confirm({
                 title: '批量删除',
-                content: '你确定批量删除选中的用户吗?',
+                content: '你确定批量删除选中的食谱吗?',
                 cancelText: '取消',
                 okText: '确定',
                 okType:'danger',
                 onOk() {
                     var cookdata = [..._this.cookdata];
                     for(let i=0;i<_this.filters.length;i++){
-                        _this.$axios.post('/deleteUser',{_id:_this.filters[i]}).then(res=>{
+                        _this.$axios.post('/deleteRecipe',{_id:_this.filters[i]}).then(res=>{
                             _this.cookdata = cookdata.filter(item => item._id !== _this.filters[i]);
                             cookdata = [..._this.cookdata];
                             console.log(res.data)
