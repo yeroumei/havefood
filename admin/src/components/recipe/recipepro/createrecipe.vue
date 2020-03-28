@@ -9,11 +9,10 @@
                             placeholder="请输入食谱标题"
                         />
                     </a-form-item>
-                    <a-form-item label="食谱封面" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
-s                        <div>
+                    <a-form-item label="封面素材" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
+                        
                         <a-upload
                             name="file"
-                            listType="picture"
                             class="avatar-uploader"
                             :showUploadList="false"
                             :fileList="fileList1" 
@@ -21,14 +20,17 @@ s                        <div>
                             :beforeUpload="beforeUpload"
                             @change="handleAva"
                         >
-                            <video v-if="type == 'video'" :src="imageUrl" width="100%" height="100%" controls="controls" />
-                            <img width="100%" v-else-if="type == 'image'" :src="imageUrl" alt="avatar" />
-                            <div v-else >
-                                <a-icon :type="loading ? 'loading' : 'plus'" />
-                                <div class="ant-upload-text">Upload</div>
+                            <div>
+                                <!-- <a-icon :type="loading ? 'loading' : 'plus'" /> -->
+                                <!-- <div class="ant-upload-text">Upload</div> -->
+                                <a-button> <a-icon type="upload" />上传素材</a-button>
                             </div>
                         </a-upload>
+                        <div style="width:21rem;height:10rem;overflow:hidden">  
+                            <video v-if="style == 'video'" :src="imageUrl" width="100%" height="100%" controls="controls" />
+                            <img width="100%" height="100%" v-if="style == 'image'" :src="imageUrl" alt="avatar" />
                         </div>
+                        <p style="color: #f5222d;" v-if="avatar_not">请上传素材</p>
                     </a-form-item>
                     
                 </a-col>
@@ -45,7 +47,7 @@ s                        <div>
                             :options="options"
                             @change="onChange"
                             :loadData="loadData"
-                            placeholder="Please select"
+                            placeholder="请选择所属类型"
                             changeOnSelect
                             v-decorator="['type', { rules: [{ required: true, message: '请选择所属类型' }]}]"
                         />
@@ -110,7 +112,7 @@ s                        <div>
                             >
                             <div>
                                 <a-icon type="plus" />
-                                <div class="ant-upload-text">Upload</div>
+                                <div class="ant-upload-text">上传步骤</div>
                             </div>
                         </a-upload>
                         <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
@@ -136,6 +138,8 @@ s                        <div>
                                 <a-icon style="margin-left:1em" @click="num--" type="minus-circle" />
                             </a-popover> -->
                         </div>
+                        <p style="color: #f5222d;" v-if="step_not">请上传食谱步骤</p>
+
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -167,7 +171,9 @@ export default {
             stepUrl:'',
             options:[],
             classdata:'',
-            type:''
+            style:'',
+            avatar_not:false,
+            step_not:false
         }
     },
     mounted(){
@@ -197,29 +203,34 @@ export default {
             this.form.validateFields((err, values) => {
                 console.log(values,'values')
                 if (!err) {
-                    if(this.imageUrl){
+                    if(this.imageUrl == ''){
+                        this.avatar_not = true
+                    }else if(this.fileList.length==0){
+                        this.avatar_not = false
+                        this.step_not = true
+                    }else{
+                        this.step_not = false
                         values.cover_pic = this.imageUrl
-                    }
-                    if(this.fileList.length!==0){
                         for(let i=0;i<this.fileList.length;i++){
                             values.step[i].img = this.fileList[i].response.result.url
                         }
+                        this.$axios.post('/addRecipe',{
+                            title: values.title,
+                            cover_pic: values.cover_pic,
+                            author: this.$store.state.islogin.username,
+                            des: values.des,
+                            type: values.type,
+                            menu: values.menu,
+                            step: values.step,
+                            time: new Date(),
+                            style: this.style,
+                            status: 0,
+                        }).then(res=>{
+                            this.$emit('omodal',false)
+                            console.log(res.data)
+                        })
                     }
-                    this.$axios.post('/addRecipe',{
-                        title: values.title,
-                        cover_pic: values.cover_pic,
-                        author: this.$store.state.islogin.username,
-                        des: values.des,
-                        type: values.type,
-                        menu: values.menu,
-                        step: values.step,
-                        time: new Date(),
-                        style: "形式",
-                        status:'状态',
-                    }).then(res=>{
-                        this.$emit('omodal',false)
-                        console.log(res.data)
-                    })
+                    
                 }
             })
         },
@@ -240,19 +251,6 @@ export default {
             this.fileList = fileList;
             console.log(this.fileList,'this.fileListthis.fileListthis.fileList')
         },
-        //步骤图
-        // handleStep(info) {
-        //     console.log(info)
-        //     if (info.file.status === 'uploading') {
-        //         this.loading = true;
-        //         return;
-        //     }
-        //     if (info.file.status === 'done') {
-        //         this.stepUrl = info.fileList[0].response.result.url;
-        //         this.loading = false;
-        //         return info.fileList[0].response.result.url;
-        //     }
-        // },
         //食材
         handleSize(value) {
             console.log(typeof(value),'va')
@@ -291,8 +289,8 @@ export default {
             if (info.file.status === 'done') {
                 this.imageUrl = info.file.response.result.url;
                 //判断是视频还是图片
-                if(/image/.test(info.file.type)) this.type = 'image'
-                if(/video/.test(info.file.type)) this.type = 'video'
+                if(/image/.test(info.file.type)) this.style = 'image'
+                if(/video/.test(info.file.type)) this.style = 'video'
                 this.loading = false;
             }
         },
@@ -320,7 +318,7 @@ export default {
         },
         // 选择类型
         onChange(value) {
-            // this.type = value;
+            // this.style = value;
         },
         loadData(selectedOptions) {
             const targetOption = selectedOptions[selectedOptions.length - 1];

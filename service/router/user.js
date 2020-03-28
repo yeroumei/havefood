@@ -144,8 +144,9 @@ router.post('/updateUser', (req, res, next) => {
 //删除用户信息
 router.post('/deleteUser', (req, res, next) => {
     let filter = { _id: req.body._id }
-    User.remove(filter).then((data) => {
-        if (data.nModified === 1) return res.json({code: 0, msg: '修改成功'}) // 修改成功
+    User.deleteOne(filter).then((data) => {
+        console.log(data,'datatatatat')
+        if (data.ok === 1) return res.json({code: 0, msg: '修改成功'}) // 修改成功
         if (data.n === 0) return res.json({code: -1, msg: '用户不存在'}) // 查询条数为0
         res.json({code: -1, msg: '错误，请检查后台代码'})
     })

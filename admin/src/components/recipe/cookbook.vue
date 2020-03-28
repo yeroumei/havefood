@@ -94,6 +94,7 @@
                     <a href="javascript:;" style="color:#ff4c39">Delete</a>
                     </a-popconfirm>
                 </template>
+                
             </a-table>
         </a-card>
     </a-row>
@@ -162,7 +163,29 @@ export default {
             {title:'收藏数',dataIndex:'loves',key:'loves'},
             {title:'浏览数',dataIndex:'visits',key:'visits'},
             {title:'点赞数',dataIndex:'likes',key:'likes'},
-            {title:'状态',dataIndex:'status',key:'status'},
+            // {title:'状态',dataIndex:'status',key:'status',scopedSlots: { customRender: 'status' }},
+            {
+            title: "状态",
+            dataIndex: "status",
+            key: "status",
+            scopedSlots: {
+                filterDropdown: "filterDropdown",
+                filterIcon: "filterIcon",
+                customRender: "customRender"
+            },
+            onFilter: (value, record) =>
+                record.status
+                .toString()
+                .toLowerCase()
+                .includes(value.toLowerCase()),
+            onFilterDropdownVisibleChange: visible => {
+                if (visible) {
+                setTimeout(() => {
+                    this.searchInput.focus();
+                }, 0);
+                }
+            }
+            },
             {title:'所属分类',dataIndex:'type',key:'type'},
             // {title:'类型',dataIndex:'style',key:'style'},
             {title: '操作',dataIndex: 'operation',scopedSlots: { customRender: 'operation' }},
@@ -197,8 +220,10 @@ export default {
 
         onChange(selectedRowKeys, selectedRows){
             this.filters = selectedRowKeys
+            console.log(this.filters)
         },
         openmodal(name){
+            console.log(this.filters,'this.filters')
             if(this.filters.length == 1){
                 for(let i=0;i<this.cookdata.length;i++){
                     if(this.filters == this.cookdata[i]._id){
@@ -226,25 +251,13 @@ export default {
             this.look=val
             this.getData()
         },
-        editUser(e){ //编辑
-            e.preventDefault();
-            this.form.validateFields((err, values) => {
-                if (!err) {
-                    console.log(values);
-                    values._id = this.record._id
-                    this.$axios.post('/updateUser',values).then(res =>{
-                        this.getData()
-                        this.form.resetFields();
-                        this.edit = false
-                        console.log(res.data)
-                    })
-                }
-            });
-        },
         onDelete(key) { //删除食谱
             const cookdata = [...this.cookdata];
             this.$axios.post('/deleteRecipe',{_id:key}).then(res=>{
                 this.cookdata = cookdata.filter(item => item._id !== key);
+                if(this.filters){ //如果删除之前选中过需要将选择的标记删除
+                    this.filters.pop(this.filters[0])
+                }
             })
         },
         deleteMany(){ //批量删除用户
@@ -261,6 +274,7 @@ export default {
                         _this.$axios.post('/deleteRecipe',{_id:_this.filters[i]}).then(res=>{
                             _this.cookdata = cookdata.filter(item => item._id !== _this.filters[i]);
                             cookdata = [..._this.cookdata];
+                             _this.filters.pop(_this.filters[i])
                             console.log(res.data)
                         })
                     }

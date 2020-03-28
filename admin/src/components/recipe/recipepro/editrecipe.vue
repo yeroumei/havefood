@@ -4,99 +4,88 @@
         <a-form :form='form' class="modal">
             <a-row>
                 <a-col :span="12">
-                    <a-form-item label="食谱封面" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
-                    <!-- <span style="line-height:104px;padding:0 5em">食谱封面，可点击查看</span> -->
-                    <a-upload
-                        name="avatar"
-                        listType="picture-card"
-                        class="avatar-uploader"
-                        :showUploadList="false"
-                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                        :beforeUpload="beforeUpload"
-                        @change="handleAva"
-                    >
-                        <img width="100%" v-if="imageUrl" :src="imageUrl" alt="avatar" />
-                        <div v-else>
-                        <a-icon :type="loading ? 'loading' : 'plus'" />
-                        <div class="ant-upload-text">Upload</div>
-                        </div>
-                    </a-upload>
+                    <a-form-item label="标题" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
+                        <a-input v-decorator="['title', { rules: [{ required: true, message: '请输入食谱标题!' }],initialValue:record.title}]"
+                            placeholder="请输入食谱标题"
+                        />
                     </a-form-item>
-                    <a-form-item label="步 骤" :label-col="{ span: 5 }" :wrapper-col="{ span: 18 }">
-                        <div v-for="(item,index) in record.step">
-                            <a-upload
-                                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                                listType="picture-card"
-                                :fileList="[
-                                    {
-                                        uid: '-1',
-                                        name: 'xxx.png',
-                                        status: 'done',
-                                        url: item.img,
-                                    },
-                                ]"
-                                @preview="handlePreview"
-                                @change="handleChange"
-                                >
-                                <div v-if="fileList.length < 3">
-                                    <a-icon type="plus" />
-                                    <div class="ant-upload-text">Upload</div>
-                                </div>
-                            </a-upload>
-                            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-                                <img alt="example" style="width: 100%" :src="previewImage" />
-                            </a-modal>
-                            <a-textarea
-                                v-decorator="['temp', { rules: [{ required: true, message: '请输入食谱的步骤描述!' }],initialValue:item.temp }]"
-                                placeholder="请输入食谱的步骤描述"
-                                :autosize="{ minRows: 2, maxRows: 2 }"
-                                style="width:90%"
-                            />
-                            <a-popover placement="right" v-if="index==0">
-                                <template slot="content">
-                                    <span>添加步骤</span>
-                                </template>
-                                <a-icon style="margin-left:1em" @click="()=>{record.step.push({temp:'',img:''})}" type="plus-circle" />
-                            </a-popover>
-                            <a-popover placement="right" v-else>
-                                <template slot="content">
-                                    <span>删除步骤</span>
-                                </template>
-                                <a-icon style="margin-left:1em" @click="()=>{record.step.pop(record.step[index])}" type="minus-circle" />
-                            </a-popover>
+                    <a-form-item label="封面素材" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
+                        <a-upload
+                            name="file"
+                            class="avatar-uploader"
+                            :showUploadList="false"
+                            :fileList="fileList1" 
+                            action="/api/upload"
+                            :beforeUpload="beforeUpload"
+                            @change="handleAva"
+                        >
+                            <div>
+                                <a-button > <a-icon type="upload" />上传素材</a-button>
+                            </div>
+                        </a-upload>
+                        <a-modal :visible="ImgVisible" :footer="null" @cancel="handleCancel">
+                            <img alt="example" v-if="style == 'image'" style="width: 100%" :src="imageUrl" />
+                        </a-modal>
+                        <div style="width:21rem;height:10rem;overflow:hidden">  
+                            <video v-if="style == 'video'" :src="imageUrl" width="100%" height="100%" controls="controls" />
+                            <img width="100%" @click="ImgVisible = true" v-if="style == 'image'" :src="imageUrl" alt="avatar" />
                         </div>
                     </a-form-item>
                 </a-col>
                 <a-col :span="12">
-                    <a-form-item label="标题" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
-                        <a-input v-decorator="['title', { rules: [{ required: true, message: '请输入食谱标题!' }],initialValue:record.title }]"
-                            placeholder="请输入食谱标题"
-                        />
-                    </a-form-item>
-                    <a-form-item label="食谱描述" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
+                    <a-form-item label="食谱描述" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
                         <a-textarea
-                            v-decorator="['des', { rules: [{ required: true, message: '请输入食谱的概要描述!' }],initialValue:record.des }]"
+                            v-decorator="['des', { rules: [{ required: true, message: '请输入食谱的概要描述!' }],initialValue:record.des}]"
                             placeholder="请输入食谱的概要描述"
                             :autosize="{ minRows: 3, maxRows: 3 }"
                         />
                     </a-form-item>
-                    <a-form-item label="食材" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
+                    <a-form-item label="所属类型" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
+                        <a-cascader
+                            :options="options"
+                            @change="onChange"
+                            :loadData="loadData"
+                            placeholder="请选择所属类型"
+                            v-decorator="['type', { rules: [{ required: true, message: '请选择所属类型' }],initialValue:record.type}]"
+                        />
+                    </a-form-item>
+                    <a-form-item label="发布状态" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
+                        <!-- <a-input
+                            v-decorator="['status', { rules: [{ required: true, message: 'Please input your note!' }],initialValue:record.status}]"
+                        /> -->
+                        <a-select
+                            v-decorator="[
+                            'status',
+                            { rules: [{ required: true, message: '请选择发布状态' }],initialValue:record.status },
+                            ]"
+                            placeholder="请选择发布状态"
+                        >
+                            <a-select-option value="已发布">已发布</a-select-option>
+                            <a-select-option value="待审核">待审核</a-select-option>
+                            <a-select-option value="草稿">草稿</a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+            <a-row>
+                <a-col :span="24">
+                    <a-form-item label="食材" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }">
                         <div v-for="(item,index) in record.menu">
                             <a-input
-                                style="width: 44%"
-                                v-decorator="['menu_name', { rules: [{ required: true, message: '请输入食材名字' }],initialValue:item.list }]"
+                                style="width: 45%;margin-right:2%"
+                                v-decorator="[`menu[${index}].list`, { rules: [{ required: true, message: '请输入食材名字' }],initialValue:item.list}]"
                                 placeholder="请输入食材名字"
                             />
                             <a-auto-complete allowClear
-                                v-decorator="['menu_size',{
+                                v-decorator="[`menu[${index}].size`,{
                                     rules:[{required:true,message:'请输入食材用量'}],initialValue:item.size
                                 }]" 
                                 :dataSource="edata"
-                                style="width: 43%"
+                                style="width: 40%"
                                 @change="handleSize"
                                 placeholder="请输入食材用量"
                             />
-                            <a-popover placement="right" v-if="index==0">
+                            <a-popover placement="right" v-if="index == 0">
                                 <template slot="content">
                                     <span>添加食材</span>
                                 </template>
@@ -112,24 +101,43 @@
                             <a-icon v-else style="margin-left:1em" @click="num--" type="minus-circle" /> -->
                         </div>
                     </a-form-item>
-                    <a-form-item label="发布时间" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
+                    <!-- <a-form-item label="发布时间" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
                         <a-date-picker  format='YYYY/MM/DD' style="width:100%" v-decorator="['time',
-                            { rules: [{ required: true, message: '请输入发布时间!' }],initialValue:moment(record.time, 'YYYY/MM/DD') }
+                            { rules: [{ required: true, message: '请输入发布时间!' }] }
                         ]" />
-                    </a-form-item>
-                    <a-form-item label="所属类型" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
-                        <a-input
-                            v-decorator="['type', { rules: [{ required: true, message: 'Please input your note!' }],initialValue:record.type }]"
-                        />
-                    </a-form-item>
-                    <a-form-item label="发布状态" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
-                        <a-input
-                            v-decorator="['status', { rules: [{ required: true, message: 'Please input your note!' }],initialValue:record.status }]"
-                        />
+                    </a-form-item> -->
+                </a-col>
+            </a-row>     
+            <a-row>   
+                <a-col :span="24">
+                    <a-form-item label="步 骤" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }">
+                        <a-upload
+                            action="/api/upload"
+                            listType="picture-card"
+                            :fileList="fileList" 
+                            @preview="handlePreview"
+                            @change="handleChange"
+                            >
+                            <div>
+                                <a-icon type="plus" />
+                                <div class="ant-upload-text">上传步骤</div>
+                            </div>
+                        </a-upload>
+                        <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+                            <img alt="example" style="width: 100%" :src="previewImage" />
+                        </a-modal>
+                        <a-form-item :label="`步骤${i}`" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }"  v-for="i in fileList.length">
+                            <!-- <div  v-for="i in fileList.length"> -->
+                                <a-textarea
+                                    v-decorator="[`step[${i-1}].temp`, { rules: [{ required: true, message: '请输入步骤描述' }],initialValue:records.step[i-1].temp }]"
+                                    placeholder="请输入食谱的步骤描述"
+                                    :autosize="{ minRows: 2, maxRows: 2 }"
+                                    style="width:90%"
+                                />
+                            <!-- </div> -->
+                        </a-form-item>
                     </a-form-item>
                 </a-col>
-                
-                
             </a-row>
         </a-form>
     </a-modal>
@@ -153,17 +161,24 @@ export default {
                 wrapperCol:{span:14}
             },
             previewVisible: false,
+            ImgVisible: false,
             previewImage: '',
             fileList: [],
+            fileList1: [],
             edata:[],
             num:1,
             tab:1,
             loading: false,
             imageUrl: '',
+            stepUrl:'',
+            options:[],
+            classdata:'',
+            records:'',
+            style:''
         }
     },
     mounted(){
-        
+        this.getclassfiy()
     },
     watch:{
         ee(val){
@@ -171,18 +186,79 @@ export default {
             
         },
         record(val){
-            console.log(val,'record')
+            this.fileList = []
+            this.records = val
             this.imageUrl = val.cover_pic
-            // for(var i=0;i<val.step.lenght;i++){
-            //     this.fileList[i].url = val.step[i].img
-            // }
-        }
+            this.style = val.style
+            for(var i=0;i<val.step.length;i++){
+            console.log(val,'编辑信息')
+                this.fileList.push({
+                    uid: i,
+                    name:'init.png',
+                    status: 'done',
+                    url: val.step[i].img,
+                })
+            }
+
+        },
+        // fileList(val){
+        //     this.records.step.push({
+        //         temp:''
+        //     })
+        // }
     },
     methods: {
         moment,
+        getclassfiy(){
+            this.$axios.get('/classifyList').then(res=>{
+                this.classdata = res.data
+                for(let i=0;i<res.data.length;i++){
+                    this.options.push({
+                        value : res.data[i].name,
+                        label: res.data[i].name,
+                        isLeaf:false
+                    })
+                }
+                console.log(this.options,'this.options')
+            })
+        },
         editRecipe(e){
             console.log('编辑')
+            this.form.validateFields((err, values) => {
+                console.log(this.fileList,'this.fileList')
+                if (!err) {
+                    if(this.imageUrl){
+                        values.cover_pic = this.imageUrl
+                    }
+                    if(this.fileList.length!==0){
+                        for(let i=0;i<this.fileList.length;i++){
+                            if(this.fileList[i].response){
+                                values.step[i].img = this.fileList[i].response.result.url
+                            }else{
+                                values.step[i].img = this.fileList[i].url
+                            }
+                        }
+                    }
+                    this.$axios.post('/updateRecipe',{
+                        _id: this.records._id,
+                        title: values.title,
+                        cover_pic: values.cover_pic,
+                        // author: this.$store.state.islogin.username,
+                        des: values.des,
+                        type: values.type,
+                        menu: values.menu,
+                        step: values.step,
+                        // time: new Date(),
+                        style: this.style,
+                        status: values.status,
+                    }).then(res=>{
+                        this.$emit('omodal',false)
+                        console.log(res.data)
+                    })
+                    console.log(values,'values')
 
+                }
+            })
         },
         cancelhandle(){
             console.log('取消')
@@ -192,6 +268,7 @@ export default {
         //步骤图
         handleCancel() {
             this.previewVisible = false;
+            this.ImgVisible = false;
         },
         handlePreview(file) {
             this.previewImage = file.url || file.thumbUrl;
@@ -216,31 +293,77 @@ export default {
         },
         //封面图
         handleAva(info) {
+            console.log(info,'info')
+            let fileList = [...info.fileList];
+            //限制只能传一个图片
+            fileList = fileList.slice(-1);
+            fileList = fileList.map(file => {
+            if (file.response) {
+                file.url = file.response.url;
+            }
+                return file;
+            });
+            this.fileList1 = fileList
+            
             if (info.file.status === 'uploading') {
-            this.loading = true;
-            return;
+                this.loading = true;
+                return;
             }
             if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            getBase64(info.file.originFileObj, imageUrl => {
-                this.imageUrl = imageUrl;
+                this.imageUrl = info.file.response.result.url;
+                //判断是视频还是图片
+                if(/image/.test(info.file.type)) this.style = 'image'
+                if(/video/.test(info.file.type)) this.style = 'video'
                 this.loading = false;
-            });
             }
         },
         beforeUpload(file) {
-            const isJPG = file.type === 'image/jpeg';
+            /* 存储后缀名 */
+            const imgTypeCheck  = /(.jpg|.jpeg|.png)$/.test(file.type);
+            const videoTypeCheck = /(.mp4)$/.test(file.type);
+            const imgCheck = /image/.test(file.type);
+            const videoCheck = /video/.test(file.type);
+            if(!imgCheck && !videoCheck) {
+                   this.$message.error("只能上传图片或视频");
+                    return false;
+            }
+            const isJPG = imgTypeCheck || videoTypeCheck
+            console.log(isJPG,'isJPG')
             if (!isJPG) {
-            this.$message.error('You can only upload JPG file!');
+                this.$message.error('You can only upload JPG file!');
             }
             const isLt2M = file.size / 1024 / 1024 < 2;
+            console.log(isLt2M,'isLt2M')
             if (!isLt2M) {
-            this.$message.error('Image must smaller than 2MB!');
+                this.$message.error('Image must smaller than 2MB!');
             }
             return isJPG && isLt2M;
         },
+        // 选择类型
+        onChange(value) {
+            // this.type = value;
+        },
+        loadData(selectedOptions) {
+            console.log(selectedOptions,'selectedOptions')
+            const targetOption = selectedOptions[selectedOptions.length - 1];
+            targetOption.loading = true;
+            targetOption.loading = false;
+            var arr = []
+            for(let i=0;i<this.classdata.length;i++){
+                if(targetOption.value == this.classdata[i].name){
+                    for(let j=0;j<this.classdata[i].kinds.length;j++){
+                        arr.push({
+                            label: this.classdata[i].kinds[j],
+                            value: this.classdata[i].kinds[j],
+                        })
+                    }
+                    targetOption.children = arr
+                }
+            }
+            this.options = [...this.options];
+        },
+
     }
-    
 }
 </script>
 

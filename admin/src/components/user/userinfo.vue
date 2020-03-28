@@ -310,14 +310,14 @@ export default {
         editUser(e){ //编辑用户
             e.preventDefault();
             this.form.validateFields((err, values) => {
-                if(values.avatar){ //判断有头像时
-                    values.avatar = values.avatar.file.response.result.url //获取服务器返回的图片地址
-                }
                 // if(values.birth){
                 //     values.birth = values.birth.format('YYYY/MM/DD')
                 // }
                 if (!err) {
                     console.log(values);
+                    if(values.avatar){ //判断有头像时
+                        values.avatar = values.avatar.file.response.result.url //获取服务器返回的图片地址
+                    }
                     values.oldname = this.record.username
                     this.$axios.post('/updateUser',values).then(res =>{
                         if(res.data.flag == 1){
@@ -333,7 +333,6 @@ export default {
                             this.edit = false
                             console.log(res.data)
                         }
-                        
                     })
                 }
             });
@@ -342,6 +341,9 @@ export default {
             const userdata = [...this.userdata];
             this.$axios.post('/deleteUser',{_id:key}).then(res=>{
                 this.userdata = userdata.filter(item => item._id !== key);
+                if(this.filters){ //如果删除之前选中过需要将选择的标记删除
+                    this.filters.pop(this.filters[0])
+                }
             })
         },
         deleteMany(){ //批量删除用户
@@ -358,15 +360,14 @@ export default {
                         _this.$axios.post('/deleteUser',{_id:_this.filters[i]}).then(res=>{
                             _this.userdata = userdata.filter(item => item._id !== _this.filters[i]);
                             userdata = [..._this.userdata];
-                            console.log(res.data)
+                            _this.filters.pop(_this.filters[i])
+                            console.log(res.data,_this.filters,'this.filters')
                         })
                     }
                 },
                 onCancel() {},
             });
         },
-        
-
         // 上传图片的相关方法
         beforeUpload(file) {
             /* 存储后缀名 */

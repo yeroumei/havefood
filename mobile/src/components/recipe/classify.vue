@@ -106,6 +106,7 @@ export default {
 		float: left;
 		position: fixed;
 		overflow-y: scroll; 
+		border-right: 2px solid #f5f5f5;
 	}
 	.site_bar::-webkit-scrollbar { width: 0 !important }
 	.site_btns{

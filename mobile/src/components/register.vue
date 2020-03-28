@@ -11,7 +11,7 @@
 			<input type="password" id="password" value="" placeholder="密码" />
 			<input type="password" id="ispassword" value="" placeholder="确认密码" />
 			<br />
-			<button>登录</button>
+			<button>注册</button>
 			<p>忘记密码？</p>
 		</form>
   </main>

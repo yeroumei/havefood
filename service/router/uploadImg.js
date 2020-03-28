@@ -30,19 +30,27 @@ router.post('/upload', (req, res, next) => {
         }
         /* 存储后缀名 */
         let extName = '';
-    
+        let types = '';
         switch (file.type) {
         case 'image/png':
+            types = 'image'
             extName = 'png';
             break;
         case 'image/x-png':
+            types = 'image'
             extName = 'png';
             break;
         case 'image/jpg':
+            types = 'image'
             extName = 'jpg';
             break;
         case 'image/jpeg':
+            types = 'image'
             extName = 'jpg';
+            break;
+        case 'video/mp4':
+            types = 'video'
+            extName = 'mp4';
             break;
         }
         /* 拼接新的文件名 */
@@ -55,7 +63,7 @@ router.post('/upload', (req, res, next) => {
             if(err) {
                 return res.send({'status': -1, 'msg': '图片上传失败', result: ''});
             } else {
-                return res.send({'status': 200, 'msg': '图片上传成功', result: {url: `http://localhost:3000/serverImage/${imageName}`}});
+                return res.send({'status': 200, 'msg': '图片上传成功', result: {url: `http://localhost:3000/serverImage/${imageName}`}, type:types});
             }
         })
     })
@@ -73,6 +81,7 @@ router.post('/deleteImg', function (req, res) {
         res.json({ msg: "文件已删除" })
     })
 });
+
 
 module.exports = router
   
