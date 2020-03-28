@@ -19,5 +19,14 @@ router.get('/newsList', function (req, res) {
         });
     }
 });
+router.post('/addNews', function (req, res) {
+    News.create(req.body, function (err, data) {
+        if (err) throw err;
+        res.send({
+            flag: 0,  //添加成功
+            des:'文章发布成功'
+        })
+    })
+});
 
 module.exports = router

@@ -12,16 +12,28 @@
 			<div class="downmenu" v-show="show">
 				<span></span>
 				<ul>
-					<li>
-						<img src="../../assets/images/picbtn.png"/>
-						晒作品
-					</li>
-					<li>
-						<img src="../../assets/images/upbtn.png"/>
-						传菜谱
-					</li>
+					<!-- <router-link  to="/addmoving"> -->
+						<li @click="select = true">
+							<img src="../../assets/images/picbtn.png"/>
+							晒作品
+						</li>
+					<!-- </router-link> -->
+					<router-link  to="/addrecipe">
+						<li>
+							<img src="../../assets/images/upbtn.png"/>
+							传菜谱
+						</li>
+					</router-link>
+					<router-link  to="/addnews">
+						<li>
+							<van-icon name="notes-o" size="20px" style="top:2px;padding: 0 8px;" />
+							<!-- <img src="../../assets/images/upbtn.png"/> -->
+							   写文章
+						</li>
+					</router-link>
 				</ul>
 			</div>
+			<van-action-sheet v-model="select" :actions="actions" @select="onSelect" />
 		</header>
 	</main>
 </template>
@@ -31,6 +43,7 @@ export default {
 	data() {
 		return {
 			show:false,
+			select:false,
 			down:[
 				{
 					"title":"晒作品",
@@ -40,12 +53,23 @@ export default {
 					"title":"传菜谱",
 					"pic":"../../assets/images/upbtn.png"
 				}
+			],
+			actions:[
+				{name:'图文分享',path:'/addmove_img'},
+				{name:'视频食谱',path:'/addmove_mp4'},
+				{name:'',path:''},
+
 			]
 		};
 	},
 	methods:{
 		downshow(){
 			this.show=!this.show
+		},
+		onSelect(item){
+			console.log(item)
+			this.$router.push({path:item.path})
+			this.select = false
 		}
 	}
 }
