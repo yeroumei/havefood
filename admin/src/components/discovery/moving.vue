@@ -31,7 +31,7 @@
             size="small"
             :rowSelection="{onChange:onChange}"
             :pagination="pagination"
-            rowKey='_id'
+            rowKey='id'
             bordered
             :loading="loading"
             >
@@ -82,11 +82,19 @@
                 <a-popconfirm
                 v-if="movedata.length"
                 title="Sure to delete?"
-                @confirm="() => onDelete(record._id)"
+                @confirm="() => onDelete(record.id)"
                 >
                 <a href="javascript:;" style="color:#ff4c39">Delete</a>
                 </a-popconfirm>
             </template>
+            <span slot="media" slot-scope="media">
+                <a-tag
+                    :color="media[0].split('.')[1] == 'mp4' ? 'orange' :'#f50'"
+                    :key="media"
+                >
+                {{media[0].split('.')[1] == 'mp4' ? '视频' :'图文'}} {{media[0].split('.')[1]}}
+                </a-tag>
+            </span>
             </a-table>
         </a-card>
     </a-row>
@@ -133,8 +141,8 @@ export default {
                 }
             }
             },
-            {title:'素材',dataIndex:'media',key:'media'},
-            {title:'描述内容',dataIndex:'content',key:'content'},
+            {title:'素材',dataIndex:'media',key:'media',scopedSlots: { customRender: 'media' }},
+            {title:'描述',dataIndex:'content',key:'content'},
             {title:'发布时间',dataIndex:'time',key:'time'},
             {title:'评论数',dataIndex:'comments',key:'comments'},
             {title:'点赞数',dataIndex:'loves',key:'loves'},
@@ -155,9 +163,11 @@ export default {
             }))
         },
         onDelete(key) { //删除日志
+            console.log(key,'这是删除的 ')
             const movedata = [...this.movedata];
-            this.$axios.post('/deleteLog',{_id:key}).then(res=>{
-                this.movedata = movedata.filter(item => item._id !== key);
+            this.$axios.post('/deleteMoves',{id:key}).then(res=>{
+                console.log(res.data)
+                this.movedata = movedata.filter(item => item.id !== key);
             })
         },
         handleSearch(selectedKeys, confirm) {
