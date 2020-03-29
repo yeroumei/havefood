@@ -3,12 +3,12 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-let islogin = ''
+let token = ''
 let userinfo = ''
 
 try{
-	if (sessionStorage.islogin)
-        islogin=JSON.parse(sessionStorage.islogin)
+	if (sessionStorage.token)
+    token=JSON.parse(sessionStorage.token)
     if (sessionStorage.userinfo)
         userinfo=JSON.parse(sessionStorage.userinfo)
 }catch (e) {
@@ -17,13 +17,13 @@ try{
 
 export default new Vuex.Store({
     state: {
-        islogin:islogin,
+        token:token,
         userinfo:userinfo
 	},
     mutations: {
-        getislogin(state, msg) {
-            state.islogin = msg.islogin
-            sessionStorage.islogin = JSON.stringify(msg.islogin)
+        gettoken(state, msg) {
+            state.token = msg.token
+            sessionStorage.token = JSON.stringify(msg.token)
         },
         getuserinfo(state, msg) {
             state.userinfo = msg.userinfo

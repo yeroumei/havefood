@@ -52,18 +52,20 @@ export default {
                     username:username,
                     password:password
                 }).then(res =>{
-                    console.log(res.data)
-                    if(res.data.username == username && res.data.password == password){
+					console.log(res,'这是res')
+                    // console.log(res.data)
+                    if(res.data.data.username == username && res.data.data.password == password){
                         let date = new Date()
-						this.$store.commit('getislogin', {islogin: true })  //记录目前的登录状态
+						this.$store.commit('gettoken', {token: res.data.token })  //记录目前的登录状态
 						this.$axios.get('/userList',{  //记录当前登录的用户信息
 							params:{
-								username:res.data.username 
+								username:res.data.data.username 
 							}
 						}).then(res=>{
 							this.$store.commit('getuserinfo',{userinfo:res.data}) 
 						})
-                        this.$router.replace({name:'my'})
+						this.$router.replace({path: this.$route.query.redirect || '/my',})
+                        // this.$router.replace({name:'my'})
                     }else{
                         Toast({
                             message:'登录失败，请再次确认用户名和密码'

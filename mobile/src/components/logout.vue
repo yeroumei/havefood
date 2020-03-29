@@ -35,17 +35,6 @@ export default {
         back(){
             this.$router.go(-1)
         },
-        // getuser(){
-        //     // console.log(this.$store.state.islogin.username)
-        //     this.$axios.get('/userList',{
-        //         params:{
-        //             username:this.$store.state.islogin.username
-        //         }
-        //     }).then(res=>{
-        //         this.userdata = res.data
-        //         // console.log(this.userdata)
-        //     })
-        // },
         activeAvatar(){
             alert('kkkkk')
         },
