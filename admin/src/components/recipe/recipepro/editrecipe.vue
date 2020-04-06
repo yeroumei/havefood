@@ -37,7 +37,7 @@
                         <a-textarea
                             v-decorator="['des', { rules: [{ required: true, message: '请输入食谱的概要描述!' }],initialValue:record.des}]"
                             placeholder="请输入食谱的概要描述"
-                            :autosize="{ minRows: 3, maxRows: 3 }"
+                            :autoSize="{ minRows: 3, maxRows: 10 }"
                         />
                     </a-form-item>
                     <a-form-item label="所属类型" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
@@ -49,10 +49,7 @@
                             v-decorator="['type', { rules: [{ required: true, message: '请选择所属类型' }],initialValue:record.type}]"
                         />
                     </a-form-item>
-                    <a-form-item label="发布状态" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
-                        <!-- <a-input
-                            v-decorator="['status', { rules: [{ required: true, message: 'Please input your note!' }],initialValue:record.status}]"
-                        /> -->
+                    <!-- <a-form-item label="发布状态" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
                         <a-select
                             v-decorator="[
                             'status',
@@ -64,7 +61,7 @@
                             <a-select-option value="待审核">待审核</a-select-option>
                             <a-select-option value="草稿">草稿</a-select-option>
                         </a-select>
-                    </a-form-item>
+                    </a-form-item> -->
                 </a-col>
             </a-row>
             <a-row>
@@ -131,7 +128,7 @@
                                 <a-textarea
                                     v-decorator="[`step[${i-1}].temp`, { rules: [{ required: true, message: '请输入步骤描述' }],initialValue:records.step[i-1].temp }]"
                                     placeholder="请输入食谱的步骤描述"
-                                    :autosize="{ minRows: 2, maxRows: 2 }"
+                                    :autoSize="{ minRows: 3, maxRows: 6 }"
                                     style="width:90%"
                                 />
                             <!-- </div> -->

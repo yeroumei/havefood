@@ -1,9 +1,5 @@
 <template>
 <a-row>
-    <!-- <a-row class="mytitle">
-      用户信息
-    </a-row> -->
-
     <a-row style="margin:1rem;background:#fff">
         <a-card title="食谱信息" hoverable>
             <div style="margin:0 0 1em 0 ">
@@ -24,6 +20,12 @@
                         <span>查看详情</span>
                     </template>
                     <a-button type="primary" style="margin-left:1em" icon='ellipsis' @click="openmodal('detail')"></a-button>
+                </a-tooltip>
+                <a-tooltip placement='top'>
+                    <template slot='title'>
+                        <span>批量审核</span>
+                    </template>
+                    <a-button type="danger" ghost style="margin-left:1em" icon='safety-certificate' @click="sureMany"></a-button>
                 </a-tooltip>
                 <a-tooltip placement='top'>
                     <template slot='title'>
@@ -61,8 +63,8 @@
                     icon="search"
                     size="small"
                     style="width: 90px; margin-right: 8px"
-                    >Search</a-button>
-                    <a-button @click="() => handleReset(clearFilters)" size="small" style="width: 90px">Reset</a-button>
+                    >查找</a-button>
+                    <a-button @click="() => handleReset(clearFilters)" size="small" style="width: 90px">取消</a-button>
                 </div>
                 <a-icon
                     slot="filterIcon"
@@ -87,14 +89,29 @@
                 </template>
                 <template slot="operation" slot-scope="text, record">
                     <a-popconfirm
-                    v-if="cookdata.length"
-                    title="Sure to delete?"
-                    @confirm="() => onDelete(record._id)"
-                    >
-                    <a href="javascript:;" style="color:#ff4c39">Delete</a>
+                        v-if="record.status == 1"
+                        title="Sure to approve?"
+                        @confirm="() => onSure(record._id)"
+                        >
+                        <a href="javascript:;" style="color:#ff4c39;padding:0 0.5em">审核</a>
+                    </a-popconfirm>
+                    <span v-else style="color:#aaa;padding:0 0.5em">审核</span>
+                    /
+                    <a-popconfirm
+                        v-if="cookdata.length"
+                        title="Sure to delete?"
+                        @confirm="() => onDelete(record._id)"
+                        >
+                        <a href="javascript:;" style="color:#ff4c39;padding:0 0.5em">删除</a>
                     </a-popconfirm>
                 </template>
-                
+                <template slot="status" slot-scope="text, record">
+                    <a-tag
+                        :color="record.status == 0 ? 'green' : record.status == 1 ? 'red' : record.status == 2 ? 'orange' : ''"
+                    >
+                    {{record.status == 0 ? '已发布' : record.status == 1 ? '待审核' : record.status == 2 ? '草 稿' : ''}} 
+                    </a-tag>
+                </template>
             </a-table>
         </a-card>
     </a-row>
@@ -163,30 +180,32 @@ export default {
             {title:'收藏数',dataIndex:'loves',key:'loves'},
             {title:'浏览数',dataIndex:'visits',key:'visits'},
             {title:'点赞数',dataIndex:'likes',key:'likes'},
+            {title:'所属分类',dataIndex:'type',key:'type'},
             // {title:'状态',dataIndex:'status',key:'status',scopedSlots: { customRender: 'status' }},
             {
             title: "状态",
             dataIndex: "status",
             key: "status",
-            scopedSlots: {
-                filterDropdown: "filterDropdown",
-                filterIcon: "filterIcon",
-                customRender: "customRender"
+            scopedSlots: { customRender: 'status' },
+                filters: [
+                    {
+                        text: '已发布',
+                        value: '0',
+                    },
+                    {
+                        text: '待审核',
+                        value: '1',
+                    },
+                    {
+                        text: '草稿',
+                        value: '2',
+                    }
+                ],
+                filterMultiple: false,
+                onFilter: (value, record) => record.status.indexOf(value) === 0,
+                sorter: (a, b) => a.status - b.status,
+                sortDirections: ['descend', 'ascend'],
             },
-            onFilter: (value, record) =>
-                record.status
-                .toString()
-                .toLowerCase()
-                .includes(value.toLowerCase()),
-            onFilterDropdownVisibleChange: visible => {
-                if (visible) {
-                setTimeout(() => {
-                    this.searchInput.focus();
-                }, 0);
-                }
-            }
-            },
-            {title:'所属分类',dataIndex:'type',key:'type'},
             // {title:'类型',dataIndex:'style',key:'style'},
             {title: '操作',dataIndex: 'operation',scopedSlots: { customRender: 'operation' }},
         ]
@@ -251,6 +270,44 @@ export default {
             this.look=val
             this.getData()
         },
+        onSure(key){ //审核
+            this.$axios.post('/updateRecipe',{
+                _id: key,
+                status: 0,
+            }).then(res=>{
+                this.$emit('omodal',false)
+                this.getData()
+                console.log(res.data,'审核通过')
+            })
+        },
+        sureMany(){
+            var _this = this
+            this.$confirm({
+                title: '批量审核',
+                content: '你确定批量审核通过选中的食谱吗?',
+                cancelText: '取消',
+                okText: '确定',
+                okType:'danger',
+                onOk() {
+                    for(let i=0;i<_this.filters.length;i++){
+                        _this.$axios.post('/updateRecipe',{
+                            _id:_this.filters[i],
+                            status: 0,
+                            }).then(res=>{
+                            // _this.cookdata = cookdata.filter(item => item._id !== _this.filters[i]);
+                            // cookdata = [..._this.cookdata];
+                            //  _this.filters.pop(_this.filters[i])
+                            console.log(res.data,'批量审核成功')
+                            _this.getData()
+                        })
+                    }
+                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                        _this.filters = ''
+                    },500)
+                },
+                onCancel() {},
+            });
+        },
         onDelete(key) { //删除食谱
             const cookdata = [...this.cookdata];
             this.$axios.post('/deleteRecipe',{_id:key}).then(res=>{
@@ -274,10 +331,13 @@ export default {
                         _this.$axios.post('/deleteRecipe',{_id:_this.filters[i]}).then(res=>{
                             _this.cookdata = cookdata.filter(item => item._id !== _this.filters[i]);
                             cookdata = [..._this.cookdata];
-                             _this.filters.pop(_this.filters[i])
+                            //  _this.filters.pop(_this.filters[i])
                             console.log(res.data)
                         })
                     }
+                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                        _this.filters = ''
+                    },1000)
                 },
                 onCancel() {},
             });

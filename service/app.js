@@ -18,8 +18,7 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 // 解决上传图片太大报错问题
 app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb', extended: false}));
-
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 // app.use(bodyParser.urlencoded({ extended: false }))
 const user = require('./router/user')
 const user_log = require('./router/user_log')

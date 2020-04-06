@@ -2,7 +2,7 @@
   <main>
         <mt-header class="t" title="分享美食">
             <mt-button icon="back" slot="left" @click="back" class="l">返回</mt-button>
-                <mt-button class="r" slot="right" @click="addMoving">发布</mt-button>
+            <mt-button class="r" slot="right" @click="addMoving">发布</mt-button>
         </mt-header>
 		<section class="content">
             <van-field
@@ -26,7 +26,7 @@ export default {
             content:'',
             fileList:[],
             media:[],
-            flagnum:''
+            flagnum:'',
         }
     },
     methods: {
@@ -70,8 +70,7 @@ export default {
         },
         addMoving(){
             console.log('发布成功')
-            var myDate = new Date();
-            var time = myDate.toLocaleString( );
+            var time = new Date();
             console.log(time,'发布时间')
             if(this.content == ''){
                 Toast({
@@ -85,14 +84,26 @@ export default {
                 });
             }
             else{
+                let medias = {
+                    type:'image',
+                    matter:this.media
+                }
                 this.$axios.post('/addMoves',{
-                    id: Number(Math.random().toString().substr(3,length) + Date.now()).toString(36),
+                    // id: Number(Math.random().toString().substr(3,length) + Date.now()).toString(36),
                     author : this.$store.state.userinfo.username,
-                    media : this.media, 
+                    media : medias, 
                     content : this.content, 
                     time : time, 
+                    status : 1
                 }).then(res=>{
                     console.log(res.data)
+                    Toast({
+                        message: '发布成功',
+                        icon: 'success'
+                    });
+                    setTimeout(()=>{
+                        this.$router.replace({path:'/recommend'})
+                    },1200)
                 })
             }
         }

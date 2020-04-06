@@ -8,15 +8,21 @@
             <div style="margin:0 0 1em 0 ">
                 <a-tooltip placement='top'>
                     <template slot='title'>
-                        <span>查看详情</span>
+                        <span>创建</span>
                     </template>
-                    <a-button type="primary" icon='ellipsis' @click="openmodal('detail')"></a-button>
+                    <a-button type="primary" icon='file-add' @click="add = true"></a-button>
                 </a-tooltip>
                 <a-tooltip placement='top'>
                     <template slot='title'>
-                        <span>编辑</span>
+                        <span>查看详情</span>
                     </template>
-                    <a-button type="primary" style="margin-left:1em" icon='form' @click="openmodal('modify')"></a-button>
+                    <a-button type="primary" style="margin-left:1em" icon='ellipsis' @click="openmodal('detail')"></a-button>
+                </a-tooltip>
+                <a-tooltip placement='top'>
+                    <template slot='title'>
+                        <span>批量审核</span>
+                    </template>
+                    <a-button type="danger" ghost style="margin-left:1em" icon='safety-certificate' @click="sureMany"></a-button>
                 </a-tooltip>
                 <a-tooltip placement='top'>
                     <template slot='title'>
@@ -80,30 +86,60 @@
             </template>
             <template slot="operation" slot-scope="text, record">
                 <a-popconfirm
+                    v-if="record.status == 1"
+                    title="Sure to approve?"
+                    @confirm="() => onSure(record._id)"
+                    >
+                    <a href="javascript:;" style="color:#ff4c39;padding:0 0.5em">审核</a>
+                </a-popconfirm>
+                <span v-else style="color:#aaa;padding:0 0.5em">审核</span>
+                /
+                <a-popconfirm
                 v-if="newsdata.length"
                 title="Sure to delete?"
                 @confirm="() => onDelete(record._id)"
                 >
-                <a href="javascript:;" style="color:#ff4c39">Delete</a>
+                <a href="javascript:;" style="color:#ff4c39">删除</a>
                 </a-popconfirm>
             </template>
+            <template slot="status" slot-scope="text, record">
+                <a-tag
+                    :color="record.status == 0 ? 'green' : record.status == 1 ? 'red' : record.status == 2 ? 'orange' : ''"
+                >
+                {{record.status == 0 ? '已发布' : record.status == 1 ? '待审核' : record.status == 2 ? '草稿' : ''}} 
+                </a-tag>
+            </template>
+            <!-- <span slot="cover_pic" slot-scope="cover_pic">
+                <a-tag
+                    :color="cover_pic.split('.')[1] == 'video' ? 'orange' :'#f50'"
+                >
+                {{cover_pic.split('.')[1] == 'video' ? '视频' :'图文'}} 
+                </a-tag>
+            </span> -->
             </a-table>
         </a-card>
     </a-row>
+    <Create :cc='add' @omodal='changemodal'></Create>
+    <Details :dd='look' :record = "record" @omodal='changemodal'></Details>
 </a-row>
 </template>
 
 <script>
-
+import Details from './discoverypro/newsdetail'
+import Create from './discoverypro/createnews'
 export default {
+    components: { Details,Create },
     data() {
         return {
         searchText: "",
         searchInput: null,
         filters:'',
         loading: false,
+        add:false,
+        look:false,
+        record:'',
         pagination: {
-            defaultPageSize: 10,
+            defaultPageSize: 5,
             showTotal: total => `共 ${total} 条数据`,
             showSizeChanger: true,
             pageSizeOptions: ["5", "10", "15", "20"],
@@ -113,15 +149,15 @@ export default {
         columns: [
             {
             title: "标题",
-            dataIndex: "author",
-            key: "author",
+            dataIndex: "title",
+            key: "title",
             scopedSlots: {
                 filterDropdown: "filterDropdown",
                 filterIcon: "filterIcon",
                 customRender: "customRender"
             },
             onFilter: (value, record) =>
-                record.author
+                record.title
                 .toString()
                 .toLowerCase()
                 .includes(value.toLowerCase()),
@@ -134,10 +170,30 @@ export default {
             }
             },
             {title:'发布者',dataIndex:'author',key:'author'},
+            // {title:'素材',dataIndex:'cover_pic',key:'cover_pic',scopedSlots: { customRender: 'cover_pic' }},
             {title:'发布时间',dataIndex:'time',key:'time'},
             {title:'浏览数',dataIndex:'visits',key:'visits'},
             {title:'点赞数',dataIndex:'loves',key:'loves'},
-            {title:'资讯类型',dataIndex:'type',key:'type'},
+            {title:'状态',dataIndex:'status',key:'status',
+                scopedSlots: { customRender: 'status' },
+                filters: [
+                    {
+                        text: '已发布',
+                        value: '0',
+                    },
+                    {
+                        text: '待审核',
+                        value: '1',
+                    },
+                    {
+                        text: '草稿',
+                        value: '2',
+                    }
+                ],
+                filterMultiple: false,
+                onFilter: (value, record) => record.status.indexOf(value) === 0,
+                sorter: (a, b) => a.status - b.status,
+                sortDirections: ['descend', 'ascend'],},
             {title: '操作',dataIndex: 'operation',scopedSlots: { customRender: 'operation' }},
         ]
         };
@@ -154,9 +210,9 @@ export default {
                 console.log(res.data)
             }))
         },
-        onDelete(key) { //删除日志
+        onDelete(key) { //删除
             const newsdata = [...this.newsdata];
-            this.$axios.post('/deleteLog',{_id:key}).then(res=>{
+            this.$axios.post('/deleteNews',{_id:key}).then(res=>{
                 this.newsdata = newsdata.filter(item => item._id !== key);
             })
         },
@@ -169,6 +225,41 @@ export default {
             clearFilters();
             this.searchText = "";
         },
+        onSure(key){
+            this.$axios.post('/sureNews',{
+                _id: key,
+                status: 0,
+            }).then(res=>{
+                this.$emit('omodal',false)
+                this.getData()
+                console.log(res.data,'审核通过')
+            })
+        },
+        sureMany(){
+            var _this = this
+            this.$confirm({
+                title: '批量审核',
+                content: '你确定批量审核通过选中的文章吗?',
+                cancelText: '取消',
+                okText: '确定',
+                okType:'danger',
+                onOk() {
+                    for(let i=0;i<_this.filters.length;i++){
+                        _this.$axios.post('/sureNews',{
+                            _id:_this.filters[i],
+                            status: 0,
+                            }).then(res=>{
+                            console.log(res.data,'批量审核成功')
+                            _this.getData()
+                        })
+                    }
+                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                        _this.filters = ''
+                    },500)
+                },
+                onCancel() {},
+            });
+        },
         deleteMany(){
             var _this = this
             this.$confirm({
@@ -180,18 +271,48 @@ export default {
                 onOk() {
                     var newsdata = [..._this.newsdata];
                     for(let i=0;i<_this.filters.length;i++){
-                        _this.$axios.post('/deleteLog',{_id:_this.filters[i]}).then(res=>{
+                        _this.$axios.post('/deleteNews',{_id:_this.filters[i]}).then(res=>{
                             _this.newsdata = newsdata.filter(item => item._id !== _this.filters[i]);
                             newsdata = [..._this.newsdata];
                             console.log(res.data)
                         })
                     }
+                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                        this.filters = ''
+                    },1000)
                 },
                 onCancel() {},
             });
         },
         onChange(selectedRowKeys, selectedRows){
             this.filters = selectedRowKeys
+        },
+        openmodal(name){
+            console.log(this.filters,'this.filters')
+            if(this.filters.length == 1){
+                for(let i=0;i<this.newsdata.length;i++){
+                    if(this.filters == this.newsdata[i]._id){
+                        this.record = this.newsdata[i]
+                        console.log(this.record,'this.record')
+                        if(name == 'detail'){
+                            this.look = true
+                        }
+                    }
+                }
+            }else if(this.filters.length > 1){
+                this.$notification['error']({
+                    message: '一次只能编辑一条食谱！'
+                })
+            }else{
+                this.$notification['error']({
+                    message: '请先选择需要操作的信息！'
+                })
+            }
+        },
+        changemodal(val){
+            this.look=val
+            this.add=val
+            this.getData()
         },
     }
 };

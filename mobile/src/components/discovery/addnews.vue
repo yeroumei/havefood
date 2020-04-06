@@ -10,25 +10,25 @@
                     name="file"
                     url="/api/upload"
                     :isPreview="true"
-                    :acceptType = "['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'video/mp4']"
+                    :acceptType = "['image/jpeg', 'image/png', 'image/gif', 'image/bmp']"
                     @success="onSuccess"
                     @fail="onFail"
                     typeError="对不起，不支持上传该类型文件！"
                     limitError="对不起，文件大小超过限制！"
                     class="imgbox"
                 >
-                <video v-if="previewType == 'video'" :src="previewImg" width="100%" height="100%" controls="controls" />
-                <van-image fit="contain" v-else-if="previewType == 'image'"  width="100%" :src="previewImg" alt />
+                <!-- <video v-if="previewType == 'video'" :src="previewImg" width="100%" height="100%" controls="controls" /> -->
+                <van-image fit="contain" v-if="previewImg"  width="100%" :src="previewImg" alt />
                 <div v-else>
                     <van-icon name="plus" size="3em" color="#aaa"/>
-                    <p style="color:#AAA;padding:1em 0">上传视频菜谱/图片菜谱</p>
+                    <p style="color:#AAA;padding:1em 0">上传封面图片</p>
                 </div>
                 </nut-uploader> 
             </div>
             <div class="tit">
                 <nut-textinput 
                     v-model="title"
-                    placeholder="请输入菜谱标题"
+                    placeholder="请输入文章标题"
                     :clearBtn="true"
                     :disabled="false"
                     :hasBorder="false"
@@ -72,7 +72,6 @@
                 </span>
             </div>
             <nut-buttongroup style="position:fixed;bottom:0">
-                <!-- <router-link to="/pre_news"  style="width:50%" > -->
                 <nut-button
                     type="light"
                     style="border-top:1px solid #ececee;width:100%"
@@ -80,12 +79,9 @@
                     >
                         预览
                     </nut-button>
-                <!-- </router-link> -->
-                <!-- <router-link to="/login" style="width:50%" > -->
-                    <nut-button style="width:100%">
+                    <nut-button @click="addNews" style="width:100%">
                         发布
                     </nut-button>
-                <!-- </router-link> -->
             </nut-buttongroup>
             
         </section>
@@ -96,7 +92,7 @@
 </template>
 
 <script>
-import { Toast } from 'vant';
+import { Toast, Dialog } from 'vant';
 import Prenews from '../discovery/discory_pro/pre_news'
 export default {
     components: { Prenews },
@@ -104,7 +100,7 @@ export default {
         return {
             show:false,
             record:{},
-            previewType:'',
+            // previewType:'',
             // 上传图片
             previewImg: '',
             title:'',
@@ -118,16 +114,55 @@ export default {
     },
     methods: {
         back(){
-            this.$router.go(-1)
+            // this.$router.go(-1)
+            if(this.previewImg !== '' || this.title !== '' || this.newsdata[0].sub !== '' || this.newsdata[0].text !== '' || this.newsdata[0].img.length !== 0){
+                Dialog.confirm({
+                    title: '',
+                    message: '是否保存到草稿？',
+                    confirmButtonText:'是',
+                    cancelButtonText:'否'
+                }).then(() => {
+                    for(var i=0;i<this.newsdata.length;i++){
+                        if(this.newsdata[i].img){
+                            for(var j=0;j<this.newsdata[i].img.length;j++){
+                                this.newsdata[i].img[j] = this.newsdata[i].img[j].url
+                            }
+                        }
+                    }
+                    this.$axios.post('/addNews',{
+                        cover_pic : this.previewImg, 
+                        title : this.title, 
+                        author : this.$store.state.userinfo.username, 
+                        media : this.newsdata, 
+                        time : new Date(),
+                        status : 2,
+                    }).then(res => {
+                        console.log(res.data)
+                        setTimeout(()=>{
+                            this.$router.replace({path:'/recommend'})
+                        },1200)
+                    })
+                })
+                    
+            }else{
+                this.$router.go(-1)
+            }
         },
         // 上传素材
         onSuccess(file,res){
             let resop = JSON.parse(res)
             this.previewImg = resop.result.url
-            this.previewType = resop.type
+            Toast({
+                message:'上传成功',
+                position:"bottom"
+            });
+            // this.previewType = resop.type
         },
         onFail(file,res){
-            alert('上传失败！');
+            Toast({
+                message:'上传失败！',
+                position:"bottom"
+            });
         },
         // 上传步骤图片
         afterread(file){
@@ -145,36 +180,39 @@ export default {
             let url = "";
             this.$axios.post('/upload',params,config).then(res=>{
                 // this.steps.push({temp:'',img:res.data.result.url})
-                for(var i=0;i<this.newsdata.length;i++){ 
-                    console.log(file)
-                    console.log(this.newsdata[i].img[0],'img0')
-                    for(var j=0;j<this.newsdata[i].img.length;j++){
-                        if(file.file.name == this.newsdata[i].img[j].file.name){
-                            this.newsdata[i].img[j].url = res.data.result.url
-                            console.log(this.newsdata[i].img[j])
+                for(let i=0;i<this.newsdata.length;i++){ 
+                    // console.log(file)
+                    console.log(this.newsdata[i],'img0')
+                    if(this.newsdata[i].img){
+                        for(let j=0;j<this.newsdata[i].img.length;j++){
+                            if(file.file.name == this.newsdata[i].img[j].file.name){
+                                this.newsdata[i].img[j].url = res.data.result.url
+                                // console.log(this.newsdata[i].img[j])
+                            }
                         }
                     }
+                    
                 }
-                console.log(this.newsdata,'[i].img[j]')
+                // console.log(this.newsdata,'[i].img[j]')
             })
         },
         // 删除步骤
         beforedelete(file){
             console.log(file,'删除的file')
-            for(var i=0;i<this.newsdata.length;i++){ 
-                for(var j=0;j<this.newsdata[i].img.length;j++){
-                    if(file.file.name == this.newsdata[i].img[j].file.name){
-                        this.flagnum1 = i
-                        this.flagnum2 = j
+            for(let i=0;i<this.newsdata.length;i++){ 
+                if(this.newsdata[i].img){
+                    for(let j=0;j<this.newsdata[i].img.length;j++){
+                        if(file.file.name == this.newsdata[i].img[j].file.name){
+                            this.flagnum1 = i
+                            this.flagnum2 = j
+                        }
                     }
                 }
             }
             this.$axios.post('/deleteImg',{
                 url:this.newsdata[this.flagnum1].img[this.flagnum2].url
             }).then(res => {
-                console.log(res.data,'删除成功')
                 this.newsdata[this.flagnum1].img.splice(this.flagnum2,1)
-                console.log(this.newsdata[this.flagnum1].img,'删除后')
             })
         },
         preview(){
@@ -203,13 +241,11 @@ export default {
                 this.record['avatar'] = this.$store.state.userinfo.avatar, 
                 this.record['media'] = this.newsdata,
                 this.record['time'] = time
-                console.log(this.record)
             }
         },
-        addnews(){
-            console.log(this.newsdata,'这是新闻')
-            var myDate = new Date();
-            var time = myDate.toLocaleString();
+        addNews(){
+            // console.log(this.newsdata,'这是新闻')
+            var time = new Date();
             if(this.previewImg == ''){
                 Toast({
                     message:'请先上传封面图',
@@ -226,17 +262,27 @@ export default {
                     position:"bottom"
                 });
             }else{
-                this.$axios.post('./addNews',{
+                for(var i=0;i<this.newsdata.length;i++){
+                    if(this.newsdata[i].img){
+                        for(var j=0;j<this.newsdata[i].img.length;j++){
+                            this.newsdata[i].img[j] = this.newsdata[i].img[j].url
+                        }
+                    }
+                }
+                this.$axios.post('/addNews',{
                     cover_pic : this.previewImg, 
                     title : this.title, 
-                    author : this.$store.state.islogin.username, 
+                    author : this.$store.state.userinfo.username, 
                     media : this.newsdata, 
                     time : time,
+                    status : 1,
                 }).then(res => {
                     console.log(res.data)
+                    setTimeout(()=>{
+                        this.$router.replace({path:'/recommend'})
+                    },1200)
                 })
             }
-            
         }
     },
 }

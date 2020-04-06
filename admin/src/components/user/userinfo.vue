@@ -84,7 +84,7 @@
                     title="Sure to delete?"
                     @confirm="() => onDelete(record._id)"
                     >
-                    <a href="javascript:;" style="color:#ff4c39">Delete</a>
+                    <a href="javascript:;" style="color:#ff4c39">删除</a>
                     </a-popconfirm>
                 </template>
                 <template slot="avatar" slot-scope="text, record">
@@ -360,10 +360,13 @@ export default {
                         _this.$axios.post('/deleteUser',{_id:_this.filters[i]}).then(res=>{
                             _this.userdata = userdata.filter(item => item._id !== _this.filters[i]);
                             userdata = [..._this.userdata];
-                            _this.filters.pop(_this.filters[i])
+                            // _this.filters.pop(_this.filters[i])
                             console.log(res.data,_this.filters,'this.filters')
                         })
                     }
+                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                        this.filters = ''
+                    },1000)
                 },
                 onCancel() {},
             });

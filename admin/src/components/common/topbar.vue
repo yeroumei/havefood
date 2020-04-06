@@ -29,13 +29,13 @@ export default {
         addLog(value){
             console.log(this.$store.state.islogin)
             // console.log(this.$store.state.islogin.intime,'this.$store.state.islogin.intime')
-            let date = new Date()
+            // let date = new Date()
             this.$axios.post('/addLog',{
                 username: this.$store.state.islogin.username,
                 password: this.$store.state.islogin.password,
                 power: this.$store.state.islogin.type,
                 intime: this.$store.state.islogin.intime,
-                outtime: date.toLocaleString(),
+                outtime: new Date(),
                 status: 0
             })
         },

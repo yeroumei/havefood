@@ -2,7 +2,6 @@
 	<main>
 		<header class="top">
 			<div class="bar">
-				
 				<div class="user" v-if="$store.state.userinfo.username">
 					<!-- <nut-avatar 
 						@activeAvatar="activeAvatar"
@@ -62,14 +61,16 @@
 		<mt-cell title="消息通知"  to="/login" is-link style="overflow: hidden;" class="new">
 		  <img slot="icon" src="../../assets/images/news.png" width="27" height="27">
 		</mt-cell>
-		
 		<mt-cell title="我的发布"  to="/login" is-link style="overflow: hidden;">
 		  <img slot="icon" src="../../assets/images/send.png" width="27" height="27">
+		</mt-cell>
+		<mt-cell title="我的草稿"  to="/login" is-link style="overflow: hidden;">
+		  <img slot="icon" src="../../assets/images/label.png" width="27" height="27">
 		</mt-cell>
 		<mt-cell title="我的收藏"  to="/login" is-link style="overflow: hidden;">
 		  <img slot="icon" src="../../assets/images/love.png" width="27" height="27">
 		</mt-cell>
-		<mt-cell title="关于我们"  to="/login" is-link style="overflow: hidden;">
+		<mt-cell title="关于我们"  to="/about" is-link style="overflow: hidden;">
 		  <img slot="icon" src="../../assets/images/us.png" width="27" height="27">
 		</mt-cell>
 		<!-- <Edit  :record="userdata"></Edit> -->
@@ -87,7 +88,7 @@ import { MessageBox } from 'mint-ui';
 			}
 		},
 		mounted(){
-			console.log(this.$store.state.userinfo.number,'this.$store.state.userinfo.number ')
+			// console.log(this.$store.state.userinfo.number,'this.$store.state.userinfo.number ')
 			if(this.$store.state.userinfo.number == ''){
 				MessageBox.confirm('请先完善个人重要信息').then(action => {
 					this.$router.push({name:'edit_info'})
@@ -103,7 +104,7 @@ import { MessageBox } from 'mint-ui';
         },
 		methods:{
             account(){
-                if(!this.$store.state.islogin){
+                if(this.$store.state.token == ''){
                     MessageBox.alert('请先登录', '提示');
                 }else{
                     this.$router.push({name:'logout'})

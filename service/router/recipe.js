@@ -8,8 +8,8 @@ const Recipe = require("../models/recipeSchema");
 // 查看食谱信息
 router.get('/recipeList', function (req, res) {
     let recipeList = ''
-    if (req.query.title) {
-        recipeList = Recipe.find({title:req.query.title}, function (err, data) {
+    if (req.query._id) {
+        recipeList = Recipe.find({_id:req.query._id}, function (err, data) {
             if (err) throw  err;
             res.send(data)
         });
@@ -20,7 +20,36 @@ router.get('/recipeList', function (req, res) {
         });
     }
 });
-
+//模糊查询
+router.get('/recipeLikes', function (req, res) {
+    const keyword = req.query.keyword //从URL中传来的 keyword参数
+    const _filter={
+        $or: [  // 多字段同时匹配
+            {title: {$regex: keyword, $options: '$i'}},
+            {author: {$regex: keyword, $options: '$i'}}, //  $options: '$i' 忽略大小写
+            {menu: {$regex: keyword, $options: '$i'}},
+            {des: {$regex: keyword, $options: '$i'}},
+            {type: {$regex: keyword, $options: '$i'}}
+        ]
+    }
+    var count = 0
+    Recipe.count(_filter, function (err, doc) { // 查询总条数（用于分页）
+        if (err) {
+        console.log(err)
+        } else {
+        count = doc
+        }
+    })
+    Recipe.find(_filter).limit(10) // 最多显示10条
+        .sort({'_id': -1}) // 倒序
+        .exec(function (err, doc) { // 回调
+        if (err) {
+            console.log(err)
+        } else {
+            res.json({code: 0, data: doc, count: count})
+        }
+    })
+})
 // 添加食谱
 //添加用户
 router.post('/addRecipe', function (req, res) {

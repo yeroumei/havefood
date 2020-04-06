@@ -16,6 +16,8 @@ const uploadImg = require('./uploadImg');
 // const upload = multer({ dest: 'uploads/' })
 // const upload = multer({dest: __dirname + '../'})
 
+const Jwt = require("jsonwebtoken");
+
 //登录验证
 router.post('/login', function (req, res) {
     var postdata = {
@@ -28,7 +30,9 @@ router.post('/login', function (req, res) {
     }, function (err, data) {
             if (err) throw err
             if (data) {
-                res.send(data)
+                let token = Jwt.sign(JSON.stringify(data),'This is secrect_key') //返回token
+                res.send({data:data,token:token})
+                console.log(data,'datdatatdtadt')
             } else {
                 res.send({
                     flag: 1,
@@ -78,6 +82,7 @@ router.post('/addUser', function (req, res) {
                 des:'用户名已存在'
             })
         } else {
+            req.body.birth = new Date(req.body.birth).toLocaleDateString() //格式化前端传来的日期字符串
             User.create(req.body, function (err, data) {
                 if (err) throw err;
                 res.send({
@@ -89,7 +94,15 @@ router.post('/addUser', function (req, res) {
     })
 })
 
-
+// 查询用户信息路由
+router.get('/userOne', function (req, res) {
+    if (req.query.username) {
+        User.find({username:req.query.username}, function (err, data) {
+            if (err) throw  err;
+            res.send(data)
+        });
+    }
+})
 // 查询用户信息路由
 router.get('/userList', function (req, res) {
     let userList = ''
@@ -115,6 +128,36 @@ router.get('/userList', function (req, res) {
         });
     // }
 });
+//模糊查询
+router.get('/userLikes', function (req, res) {
+const keyword = req.query.keyword //从URL中传来的 keyword参数
+const _filter={
+    $or: [  // 多字段同时匹配
+        {username: {$regex: keyword, $options: '$i'}},
+        {sex: {$regex: keyword, $options: '$i'}}, //  $options: '$i' 忽略大小写
+        {number: {$regex: keyword, $options: '$i'}}
+    ]
+}
+var count = 0
+User.count(_filter, function (err, doc) { // 查询总条数（用于分页）
+    if (err) {
+    console.log(err)
+    } else {
+    count = doc
+    }
+})
+User.find(_filter,{
+    password : 0 // 返回结果不包含密码字段
+}).limit(10) // 最多显示10条
+    .sort({'_id': -1}) // 倒序
+    .exec(function (err, doc) { // 回调
+    if (err) {
+        console.log(err)
+    } else {
+        res.json({code: 0, data: doc, count: count})
+    }
+})
+})
 
 //修改用户信息
 router.post('/updateUser', (req, res, next) => {

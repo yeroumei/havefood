@@ -84,4 +84,7 @@ export default {
 .ant-form-item {  /*弹窗input的间距*/
   margin-bottom: 14px;
 }
+.ant-menu-submenu-selected{
+  color: #ff4c39;
+}
 </style>

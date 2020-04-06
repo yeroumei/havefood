@@ -10,7 +10,6 @@
                         />
                     </a-form-item>
                     <a-form-item label="封面素材" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
-                        
                         <a-upload
                             name="file"
                             class="avatar-uploader"
@@ -21,25 +20,30 @@
                             @change="handleAva"
                         >
                             <div>
-                                <!-- <a-icon :type="loading ? 'loading' : 'plus'" /> -->
-                                <!-- <div class="ant-upload-text">Upload</div> -->
                                 <a-button> <a-icon type="upload" />上传素材</a-button>
                             </div>
                         </a-upload>
-                        <div style="width:21rem;height:10rem;overflow:hidden">  
+                        <!-- <div style="width:21rem;height:10rem;overflow:hidden">  
                             <video v-if="style == 'video'" :src="imageUrl" width="100%" height="100%" controls="controls" />
                             <img width="100%" height="100%" v-if="style == 'image'" :src="imageUrl" alt="avatar" />
-                        </div>
+                        </div> -->
                         <p style="color: #f5222d;" v-if="avatar_not">请上传素材</p>
+                        <a-modal :visible="ImgVisible" :footer="null" @cancel="handleCancel">
+                            <img alt="example" v-if="style == 'image'" style="width: 100%" :src="imageUrl" />
+                        </a-modal>
+                        <div style="width:21rem;height:10rem;overflow:hidden">  
+                            <video v-if="style == 'video'" :src="imageUrl" width="100%" height="100%" controls="controls" />
+                            <img width="100%" @click="ImgVisible = true" v-if="style == 'image' && imageUrl" :src="imageUrl" alt="avatar" />
+                        </div>
+
                     </a-form-item>
-                    
                 </a-col>
                 <a-col :span="12">
                     <a-form-item label="食谱描述" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
                         <a-textarea
                             v-decorator="['des', { rules: [{ required: true, message: '请输入食谱的概要描述!' }]}]"
                             placeholder="请输入食谱的概要描述"
-                            :autosize="{ minRows: 3, maxRows: 3 }"
+                            :autoSize="{ minRows: 3, maxRows: 6 }"
                         />
                     </a-form-item>
                     <a-form-item label="所属类型" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
@@ -93,11 +97,6 @@
                             <a-icon v-else style="margin-left:1em" @click="num--" type="minus-circle" /> -->
                         </div>
                     </a-form-item>
-                    <!-- <a-form-item label="发布时间" :label-col="{ span: 5 }" :wrapper-col="{ span: 16 }">
-                        <a-date-picker  format='YYYY/MM/DD' style="width:100%" v-decorator="['time',
-                            { rules: [{ required: true, message: '请输入发布时间!' }] }
-                        ]" />
-                    </a-form-item> -->
                 </a-col>
             </a-row>     
             <a-row>   
@@ -125,18 +124,6 @@
                                 :autosize="{ minRows: 2, maxRows: 2 }"
                                 style="width:90%"
                             />
-                            <!-- <a-popover placement="right" v-if="i == 1">
-                                <template slot="content">
-                                    <span>添加步骤</span>
-                                </template>
-                                <a-icon style="margin-left:1em" @click="num++" type="plus-circle" />    
-                            </a-popover>
-                            <a-popover placement="right" v-else>
-                                <template slot="content">
-                                    <span>删除步骤</span>
-                                </template>
-                                <a-icon style="margin-left:1em" @click="num--" type="minus-circle" />
-                            </a-popover> -->
                         </div>
                         <p style="color: #f5222d;" v-if="step_not">请上传食谱步骤</p>
 
@@ -160,6 +147,7 @@ export default {
                 wrapperCol:{span:14}
             },
             previewVisible: false,
+            ImgVisible: false,
             previewImage: '',
             fileList: [],
             fileList1: [],
@@ -224,9 +212,13 @@ export default {
                             step: values.step,
                             time: new Date(),
                             style: this.style,
-                            status: 0,
+                            status: 0, //管理员直接发布
                         }).then(res=>{
                             this.$emit('omodal',false)
+                            this.form.resetFields();
+                            this.imageUrl = ''
+                            this.fileList = ''
+                            this.tab = 1
                             console.log(res.data)
                         })
                     }
@@ -237,11 +229,12 @@ export default {
         cancelhandle(){
             console.log('取消')
             this.$emit('omodal',false)
-            // this.form.resetFields();
+            this.form.resetFields();
         },
         //步骤图
         handleCancel() {
             this.previewVisible = false;
+            this.ImgVisible = false;
         },
         handlePreview(file) {
             this.previewImage = file.url || file.thumbUrl;
@@ -309,12 +302,13 @@ export default {
             if (!isJPG) {
                 this.$message.error('You can only upload JPG file!');
             }
-            const isLt2M = file.size / 1024 / 1024 < 2;
-            console.log(isLt2M,'isLt2M')
-            if (!isLt2M) {
-                this.$message.error('Image must smaller than 2MB!');
-            }
-            return isJPG && isLt2M;
+            // const isLt2M = file.size / 1024 / 1024 < 2;
+            // console.log(isLt2M,'isLt2M')
+            // if (!isLt2M) {
+            //     this.$message.error('Image must smaller than 2MB!');
+            // }
+            // return isJPG && isLt2M;
+            return isJPG;
         },
         // 选择类型
         onChange(value) {

@@ -14,7 +14,10 @@ import NutUI from '@nutui/nutui';
 import '@nutui/nutui/dist/nutui.css';
 NutUI.install(Vue);
 
-import { Picker, TreeSelect, Field, Popup, Uploader, Cell, SwipeCell, Button, Form, Icon, Image, ActionSheet } from 'vant';
+import { Picker, TreeSelect, Field, Popup, Uploader, Cell, SwipeCell, 
+       Button, Form, Icon, Image, ActionSheet, Step, Steps,Divider,
+       Tab, Tabs, Search, Swipe, SwipeItem, Lazyload, List, PullRefresh,
+       Col, Row  } from 'vant';
 
 Vue.use(Picker)
        .use(TreeSelect)
@@ -28,6 +31,19 @@ Vue.use(Picker)
        .use(Icon)
        .use(Image)
        .use(ActionSheet)
+       .use(Step)
+       .use(Steps)
+       .use(Divider)
+       .use(Tab)
+       .use(Tabs)
+       .use(Search)
+       .use(Swipe)
+       .use(SwipeItem)
+       .use(Lazyload)
+       .use(List)
+       .use(PullRefresh)
+       .use(Col)
+       .use(Row)
 //引入swiper轮播插件
 import Swiper from 'swiper';
 import VueAwesomeSwiper from 'vue-awesome-swiper';

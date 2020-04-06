@@ -16,6 +16,7 @@ body,html{
 	width: 100%;
 	height: auto;
 	margin: 0 auto;
+	background: #fff;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -36,7 +37,7 @@ ul {
   margin: 0;
 }
 li {
-  display: inline-block;
+  /* display: inline-block; */
   margin: 0;
 }
 a {
@@ -68,4 +69,16 @@ p{
 		height: 100%;
     /* background-color: #ff4c39; */
 }
+/* 菜谱描述 */
+/* .nut-textinput input{
+		height: 3.5em;
+		font-size: 16px;
+	} */
+  .van-uploader__upload-icon{
+    color: #aaaaaa;
+  }
+  .van-uploader__upload{
+    background-color: #f5f5f5;
+    border: .5px solid #cfcfcf;
+  }
 </style>

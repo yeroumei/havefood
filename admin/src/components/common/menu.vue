@@ -23,7 +23,7 @@
     </a-sub-menu>
     <a-sub-menu key="sub4">
       <span slot="title"><a-icon type="laptop" class="icon" />系统维护</span>
-      <a-menu-item :key="'/notice'"><router-link :to='{name:"notice"}'>通知管理</router-link></a-menu-item>
+      <!-- <a-menu-item :key="'/notice'"><router-link :to='{name:"notice"}'>通知管理</router-link></a-menu-item> -->
       <a-menu-item :key="'/about'"><router-link :to='{name:"about"}'>关于我们</router-link></a-menu-item>
     </a-sub-menu>
   </a-menu>

@@ -1,6 +1,7 @@
 <template>
 	<main>
       	<router-view name="content"></router-view>
+		  <!-- <router-view></router-view> -->
       	<ul class="navlist">
       		<!-- <li class="btns" v-for="(item,index) in list">
         		<router-link :to="item.adr">
@@ -17,14 +18,14 @@
         		</router-link>
         	</li>
             <li class="btns">
-        		<router-link to="/discover">
+        		<router-link to="/find">
         			<img src="../../assets/images/btn2.png" class="act"/>
         			<img src="../../assets/images/btn22.png"/>
         			发现
         		</router-link>
         	</li>
             <li class="btns">
-        		<router-link to="/eatingwords">
+        		<router-link to="/move">
         			<img src="../../assets/images/btn3.png" class="act"/>
         			<img src="../../assets/images/btn33.png"/>
         			食趣

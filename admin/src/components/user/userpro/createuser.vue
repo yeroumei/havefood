@@ -110,6 +110,7 @@ export default {
                 // }
                 if (!err) {
                     console.log(values);
+                    values.status = '0'
                     this.$axios.post('/addUser',values).then(res =>{
                         if(res.data.flag == 1){
                             this.$notification['error']({

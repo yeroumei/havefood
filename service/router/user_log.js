@@ -35,19 +35,19 @@ router.post('/deleteLog', (req, res, next) => {
     let filter = { _id: req.body._id }
     User_log.deleteOne(filter).then((data) => {
         // console.log(data)
-        if (data.nModified === 1) return res.json({flag: 0, msg: 'delete successfully'}) // 修改成功
+        if (data.ok === 1) return res.json({flag: 0, msg: 'delete successfully'}) // 修改成功
         if (data.n === 0) return res.json({flag: -1, msg: 'Cannott find it'}) // 查询条数为0
         res.json({flag: -1, msg: 'error'})
     })
 })
-router.post('/deleteManylog', (req, res, next) => {
-    let itemCheckLists = req.body
-    User_log.deleteMany({_id: {$in: itemCheckLists}}).then((data) => {
-        // console.log(data)
-        if (data.nModified === 1) return res.json({flag: 0, msg: 'delete successfully'}) // 修改成功
-        if (data.n === 0) return res.json({flag: -1, msg: 'Cannott find it'}) // 查询条数为0
-        res.json({flag: -1, msg: 'error'})
-    })
-})
+// router.post('/deleteManylog', (req, res, next) => {
+//     let itemCheckLists = req.body
+//     User_log.deleteMany({_id: {$in: itemCheckLists}}).then((data) => {
+//         // console.log(data)
+//         if (data.nModified === 1) return res.json({flag: 0, msg: 'delete successfully'}) // 修改成功
+//         if (data.n === 0) return res.json({flag: -1, msg: 'Cannott find it'}) // 查询条数为0
+//         res.json({flag: -1, msg: 'error'})
+//     })
+// })
 
 module.exports = router

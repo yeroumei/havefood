@@ -97,7 +97,7 @@
                 title="Sure to delete?"
                 @confirm="() => onDelete(record._id)"
                 >
-                <a href="javascript:;" style="color:#ff4c39">Delete</a>
+                <a href="javascript:;" style="color:#ff4c39">删除</a>
                 </a-popconfirm>
             </template>
             </a-table>
@@ -235,7 +235,7 @@ export default {
             delkinds: false,
             num:1,
             pagination: {
-                defaultPageSize: 10,
+                defaultPageSize: 5,
                 showTotal: total => `共 ${total} 条数据`,
                 showSizeChanger: true,
                 pageSizeOptions: ["5", "10", "15", "20"],
@@ -318,6 +318,9 @@ export default {
                             console.log(res.data)
                         })
                     }
+                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                        this.filters = ''
+                    },1000)
                 },
                 onCancel() {},
             });

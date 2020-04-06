@@ -121,16 +121,16 @@ export default {
                     console.log(value)
                     this.$axios.post('/login',value).then(res =>{
                         console.log(res.data)
-                        if(res.data.username == value.username && res.data.password == value.password){
-                            if(res.data.type == 'admin'){ //只有管理员可以进入
-                                let date = new Date()
+                        if(res.data.data.username == value.username && res.data.data.password == value.password){
+                            if(res.data.data.type == 'admin'){ //只有管理员可以进入
+                                // let date = new Date()
                                 this.$store.commit('getislogin', {
                                     islogin: {
                                         flag:true,
-                                        username: res.data.username,
-                                        password: res.data.password,
-                                        type: res.data.type,
-                                        intime: date.toLocaleString()
+                                        username: res.data.data.username,
+                                        password: res.data.data.password,
+                                        type: res.data.data.type,
+                                        intime: new Date()
                                     },
                                 }) 
                                 this.$router.push({name:'cookbook'})

@@ -11,7 +11,7 @@ const newsSchema = new Schema({
     time : String, 
     visits : Number, 
     loves: Number,
-    type:Array
+    status: String,
 }, { collection: 'news'})
 //这里mongoose.Schema最好要写上第二个参数，明确指定到数据库中的哪个表取数据，我这里写了myhreo，目的就是为了以后操作数据要去myhreo表中。
 //这里不写第二个参数的话，后面你会遇到坑。

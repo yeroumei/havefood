@@ -62,6 +62,7 @@ export default {
 								username:res.data.data.username 
 							}
 						}).then(res=>{
+							res.data.intime = new Date()
 							this.$store.commit('getuserinfo',{userinfo:res.data}) 
 						})
 						this.$router.replace({path: this.$route.query.redirect || '/my',})

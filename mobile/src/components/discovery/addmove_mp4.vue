@@ -101,8 +101,7 @@ export default {
         // },
         addMoving(){
             console.log('发布成功')
-            var myDate = new Date();
-            var time = myDate.toLocaleString( );
+            var time = new Date();
             console.log(time,'发布时间')
             if(this.content == ''){
                 Toast({
@@ -116,14 +115,26 @@ export default {
                 });
             }
             else{
+                let medias = {
+                    type:'video',
+                    matter:this.previewImg
+                }
                 this.$axios.post('/addMoves',{
-                    id: Number(Math.random().toString().substr(3,length) + Date.now()).toString(36),
-                    author : this.$store.state.islogin.username,
-                    media : this.previewImg, 
+                    // id: Number(Math.random().toString().substr(3,length) + Date.now()).toString(36),
+                    author : this.$store.state.userinfo.username,
+                    media : medias, 
                     content : this.content, 
                     time : time, 
+                    status : 1
                 }).then(res=>{
                     console.log(res.data)
+                    Toast({
+                        message: '发布成功',
+                        icon: 'success'
+                    });
+                    setTimeout(()=>{
+                        this.$router.replace({path:'/recommend'})
+                    },1200)
                 })
             }
         }

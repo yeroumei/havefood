@@ -40,13 +40,13 @@ export default {
         },
         logout(){ //退出账号
             // console.log(this.$store.state.userinfo.intime,'this.$store.state.userinfo.intime')
-            let date = new Date()
+            // let date = new Date()
             this.$axios.post('/addLog',{
                 username: this.$store.state.userinfo.username,
                 password: this.$store.state.userinfo.password,
                 power: this.$store.state.userinfo.type,
                 intime: this.$store.state.userinfo.intime,
-                outtime: date.toLocaleString(),
+                outtime: new Date(),
                 status: 0
             }).then(res=>{
                 this.$router.replace({name:'login'})
