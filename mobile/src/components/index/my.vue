@@ -2,13 +2,7 @@
 	<main>
 		<header class="top">
 			<div class="bar">
-				<div class="user" v-if="$store.state.userinfo.username">
-					<!-- <nut-avatar 
-						@activeAvatar="activeAvatar"
-						bgIcon=""
-						:bgImage="$store.state.userinfo.avatar"
-						class="userpic"
-						> -->
+				<div class="user" v-if="$store.state.userinfo">
 						<nut-uploader
 							name="file"
 							url="/api/upload"
@@ -19,7 +13,6 @@
 						>
 						<img width="100%" height="100%" style="border-radius:100%" :src="$store.state.userinfo.avatar"/>
 						</nut-uploader>   
-					<!-- </nut-avatar> -->
 					<router-link to="/edit_info">
 						<h2 class="tologin">{{$store.state.userinfo.username}}</h2>
 						<span class="des">正在通往美食达人的路上..</span>
@@ -31,13 +24,6 @@
 						 class="userpic"
 						 bgColor="none"
 						>
-						<nut-uploader
-							name="file"
-							url="/api/upload"
-							@success="onSuccess"
-							@fail="onFail"
-							@showMsg="showMsgFn"
-						></nut-uploader>   
 					</nut-avatar>
 					<router-link to="/login" >
 						<h2 class="tologin">点击登录</h2>
@@ -49,14 +35,14 @@
 		</header>
 		<ul style="overflow: hidden;">
 			<li class="nav_li">
-				<a href="#">关注 <span>{{$store.state.userinfo.myloves ? $store.state.userinfo.myloves.length : ''}}</span> </a>
+				<a href="#">关注 <span>{{$store.state.userinfo ? $store.state.userinfo.myloves ? $store.state.userinfo.myloves.length : '' : ''}}</span> </a>
 			</li>
 			<li class="nav_li">
-				<a href="#">粉丝 <span>{{$store.state.userinfo.myfans ? $store.state.userinfo.myfans.length : ''}}</span> </a>
+				<a href="#">粉丝 <span>{{$store.state.userinfo ? $store.state.userinfo.myfans ? $store.state.userinfo.myfans.length : '' : ''}}</span> </a>
 			</li>
-			<li class="nav_li">
+			<!-- <li class="nav_li">
 				<a style="border-right: 0;"><span>0</span> 菜谱</a>
-			</li>
+			</li> -->
 		</ul>
 		<mt-cell title="消息通知"  to="/login" is-link style="overflow: hidden;" class="new">
 		  <img slot="icon" src="../../assets/images/news.png" width="27" height="27">
@@ -73,7 +59,6 @@
 		<mt-cell title="关于我们"  to="/about" is-link style="overflow: hidden;">
 		  <img slot="icon" src="../../assets/images/us.png" width="27" height="27">
 		</mt-cell>
-		<!-- <Edit  :record="userdata"></Edit> -->
 	</main>
 </template>
 
@@ -89,30 +74,33 @@ import { MessageBox } from 'mint-ui';
 		},
 		mounted(){
 			// console.log(this.$store.state.userinfo.number,'this.$store.state.userinfo.number ')
-			if(this.$store.state.userinfo.number == ''){
-				MessageBox.confirm('请先完善个人重要信息').then(action => {
-					this.$router.push({name:'edit_info'})
-				},cancel =>{
-					console.log(cancel,'取消')
-				});
+			if(this.$store.state.userinfo){
+				if(this.$store.state.userinfo.number == ''){
+					MessageBox.confirm('请先完善个人重要信息').then(action => {
+						this.$router.push({name:'edit_info'})
+					},cancel =>{
+						console.log(cancel,'取消')
+					});
+				}
 			}
+			
         },
         computed:{
             userinfo(){
                 return this.$store.state.userinfo
             }
-        },
+		},
 		methods:{
             account(){
-                if(this.$store.state.token == ''){
-                    MessageBox.alert('请先登录', '提示');
-                }else{
+                if(this.$store.state.userinfo){
                     this.$router.push({name:'logout'})
+                }else{
+                    MessageBox.alert('请先登录', '提示');
                 }
 			},
 			activeAvatar(){
+				MessageBox.alert('请先登录', '提示');
 				console.log('更换头像')
-
 			},
 			onSuccess(file,res){
 				console.log(JSON.parse(res),'file,res')
@@ -136,6 +124,9 @@ import { MessageBox } from 'mint-ui';
 					}
 					
 				})
+			},
+			loginfirst(){
+				 MessageBox.alert('请先登录', '提示');
 			},
 			onFail(file,res){
 				this.$toast.fail('上传失败！');
@@ -216,7 +207,7 @@ import { MessageBox } from 'mint-ui';
 	    bottom: 20%;
 	}
 	.nav_li{
-		width: 33.333333%;
+		width: 50%;
 		float: left;
 		background: #fefefe;    
 		margin-bottom: 10px;

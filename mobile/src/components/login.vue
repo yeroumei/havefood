@@ -30,7 +30,8 @@ export default {
     },
     methods:{
         back(){
-            this.$router.go(-1)
+			this.$router.go(-1)
+			// this.$router.push({name:'recommend'})
 		},
         check(){
             var username = document.getElementById('username').value;
@@ -77,9 +78,9 @@ export default {
             }
         }
 	},
-	beforeDestroy(){ //进入刷新组件
-		window.localStorage.removeItem('reloaded');
-	}
+	// beforeDestroy(){ //进入刷新组件
+	// 	window.localStorage.removeItem('reloaded');
+	// }
 }
 </script>
 

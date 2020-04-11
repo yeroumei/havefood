@@ -50,6 +50,8 @@ export default {
                 status: 0
             }).then(res=>{
                 this.$router.replace({name:'login'})
+                this.$store.commit('getuserinfo','') 
+                this.$store.commit('gettoken','') 
                 sessionStorage.clear()
             })
         }
