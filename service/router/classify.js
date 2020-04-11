@@ -62,14 +62,14 @@ router.post('/deleteClassify', (req, res, next) => {
     })
 })
 //批量删除
-// router.post('/deleteManyclassify', (req, res, next) => {
-//     let itemCheckLists = req.body
-//     Classify.deleteMany({_id: {$in: itemCheckLists}}).then((data) => {
-//         // console.log(data)
-//         if (data.ok === 1) return res.json({flag: 0, msg: 'delete successfully'}) // 修改成功
-//         if (data.n === 0) return res.json({flag: -1, msg: 'Cannott find it'}) // 查询条数为0
-//         res.json({flag: -1, msg: 'error'})
-//     })
-// })
+router.post('/deleteManyclassify', (req, res, next) => {
+    let itemCheckLists = req.body
+    Classify.deleteMany({_id: {$in: itemCheckLists}}).then((data) => {
+        // console.log(data)
+        if (data.ok === 1) return res.json({flag: 0, msg: 'delete successfully'}) // 修改成功
+        if (data.n === 0) return res.json({flag: -1, msg: 'Cannott find it'}) // 查询条数为0
+        res.json({flag: -1, msg: 'error'})
+    })
+})
 
 module.exports = router

@@ -139,7 +139,7 @@ const _filter={
     ]
 }
 var count = 0
-User.count(_filter, function (err, doc) { // 查询总条数（用于分页）
+User.countDocuments(_filter, function (err, doc) { // 查询总条数（用于分页）
     if (err) {
     console.log(err)
     } else {

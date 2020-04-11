@@ -7,17 +7,11 @@ const Moves = require("../models/moveSchema");
 
 router.get('/moveList', function (req, res) {
     let movelist = ''
-    if (req.body._id) {
-        movelist = Moves.find({title:req.body._id}, function (err, data) {
-            if (err) throw  err;
-            res.send(data)
-        });
-    } else {
-        movelist = Moves.find({}, function (err, data) {
-            if (err) throw  err;
-            res.send(data)
-        });
-    }
+    let filter = req.query
+    movelist = Moves.find(filter, function (err, data) {
+        if (err) throw  err;
+        res.send(data)
+    });
 });
 //模糊查询
 router.get('/movesLikes', function (req, res) {
@@ -27,10 +21,13 @@ router.get('/movesLikes', function (req, res) {
             {title: {$regex: keyword, $options: '$i'}},
             {time: {$regex: keyword, $options: '$i'}}, //  $options: '$i' 忽略大小写
             {content: {$regex: keyword, $options: '$i'}},
+        ],
+        $and:[
+            {status:0}
         ]
     }
     var count = 0
-    Moves.count(_filter, function (err, doc) { // 查询总条数（用于分页）
+    Moves.countDocuments(_filter, function (err, doc) { // 查询总条数（用于分页）
         if (err) {
         console.log(err)
         } else {
@@ -77,4 +74,22 @@ router.post('/deleteMoves', (req, res, next) => {
         res.json({code: -1, msg: '错误，请检查后台代码'})
     })
 })
+
+// 点赞
+router.post('/loveMoves', (req, res, next) => {
+    let filter = { _id: req.body._id }
+    Moves.updateOne(filter,{$set:req.body}).then((data) => {
+        console.log(data,'updateOne')
+        if (data.nModified === 1)  {
+            let movelist = Moves.find(filter, function (err, data) {
+                if (err) throw  err;
+                console.log(data,'dataloves')
+                return  res.json(data)
+        });
+        }
+        if (data.n === 0) return res.json({code: -1, msg: '用户不存在'}) // 查询条数为0
+        // res.json({code: -1, msg: '错误，请检查后台代码'})
+    })
+})
+
 module.exports = router

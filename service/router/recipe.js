@@ -8,17 +8,11 @@ const Recipe = require("../models/recipeSchema");
 // 查看食谱信息
 router.get('/recipeList', function (req, res) {
     let recipeList = ''
-    if (req.query._id) {
-        recipeList = Recipe.find({_id:req.query._id}, function (err, data) {
-            if (err) throw  err;
-            res.send(data)
-        });
-    } else {
-        recipeList = Recipe.find({}, function (err, data) {
-            if (err) throw  err;
-            res.send(data)
-        });
-    }
+    let filter = req.query
+    recipeList = Recipe.find(filter, function (err, data) {
+        if (err) throw  err;
+        res.send(data)
+    });
 });
 //模糊查询
 router.get('/recipeLikes', function (req, res) {
@@ -30,17 +24,20 @@ router.get('/recipeLikes', function (req, res) {
             {menu: {$regex: keyword, $options: '$i'}},
             {des: {$regex: keyword, $options: '$i'}},
             {type: {$regex: keyword, $options: '$i'}}
+        ],
+        $and:[
+            {status:0}
         ]
     }
     var count = 0
-    Recipe.count(_filter, function (err, doc) { // 查询总条数（用于分页）
+    Recipe.countDocuments(_filter, function (err, doc) { // 查询总条数（用于分页）
         if (err) {
         console.log(err)
         } else {
         count = doc
         }
     })
-    Recipe.find(_filter).limit(10) // 最多显示10条
+    Recipe.find(_filter) // 最多显示10条
         .sort({'_id': -1}) // 倒序
         .exec(function (err, doc) { // 回调
         if (err) {

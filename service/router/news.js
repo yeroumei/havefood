@@ -13,11 +13,21 @@ router.get('/newsList', function (req, res) {
             res.send(data)
         });
     } else {
-        newsList = News.find({}, function (err, data) {
+        newsList =  News.aggregate([{ $lookup: { from: 'collects', localField: '_id', foreignField: 'favorite', as: 'collects' } }],
+         function (err, data) {
             if (err) throw  err;
             res.send(data)
         });
     }
+});
+//只查已发布的
+router.get('/newsSend', function (req, res) {
+    let newsList = ''
+    let filter = req.query
+    newsList = News.find(filter, function (err, data) {
+        if (err) throw  err;
+        res.send(data)
+    });
 });
 //模糊查询
 router.get('/newsLikes', function (req, res) {
@@ -27,10 +37,13 @@ router.get('/newsLikes', function (req, res) {
             {title: {$regex: keyword, $options: '$i'}},
             {author: {$regex: keyword, $options: '$i'}}, //  $options: '$i' 忽略大小写
             {media: {$regex: keyword, $options: '$i'}},
+        ],
+        $and:[
+            {status:0}
         ]
     }
     var count = 0
-    News.count(_filter, function (err, doc) { // 查询总条数（用于分页）
+    News.countDocuments(_filter, function (err, doc) { // 查询总条数（用于分页）
         if (err) {
         console.log(err)
         } else {
@@ -48,12 +61,23 @@ router.get('/newsLikes', function (req, res) {
     })
 })
 router.post('/addNews', function (req, res) {
-    News.create(req.body, function (err, data) {
-        if (err) throw err;
-        res.send({
-            flag: 0,  //添加成功
-            des:'文章发布成功'
-        })
+    News.findOne({ 
+        id: req.body.id  //用户名不重复
+    }, function (err, data) {
+        if (data) {
+            res.send({
+                flag: 1,  //用户名已存在
+                des:'已存在'
+            })
+        } else {
+            News.create(req.body, function (err, data) {
+                if (err) throw err;
+                res.send({
+                    flag: 0,  //添加成功
+                    des:'文章发布成功'
+                })
+            })
+        }
     })
 });
 // 更新信息
@@ -76,4 +100,20 @@ router.post('/deleteNews', (req, res, next) => {
         res.json({code: -1, msg: '错误，请检查后台代码'})
     })
 })
+// 点赞
+router.post('/loveNews', (req, res, next) => {
+    let filter = { _id: req.body._id }
+    News.updateOne(filter,{$set:req.body}).then((data) => {
+        console.log(data,'updateOne')
+        if (data.nModified === 1)  {
+            let newslist = News.find(filter, function (err, data) {
+            if (err) throw  err;
+            console.log(data,'dataloves')
+            return  res.json(data)
+        });
+        }
+        if (data.n === 0) return res.json({code: -1, msg: '用户不存在'}) // 查询条数为0
+    })
+})
+
 module.exports = router
