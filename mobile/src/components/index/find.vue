@@ -1,20 +1,26 @@
 <template>
     <main>
+
         <header class="topbar">
+            <!-- <mt-button icon="back" @click="back()" slot="left" class="l">返回</mt-button> -->
+            <!-- <i class="back" @click="back()"></i> -->
+            <router-link to="/search" class="find">
+                <img src="../../assets/images/findbtn.png"/>
+                搜索任何你想要的
+            </router-link>
+        </header>
+        <!-- <header class="topbar">
             <van-search
                 v-model="value"
                 show-action
                 placeholder="请输入搜索关键词"
                 @search="onSearch"
                 >
-                <template #left>
-                    <van-icon @click="back" color= "#ff5151" style="padding-right:0.5em" size="20px" name="arrow-left" />
-                </template>
                 <template #action>
                     <van-button @click="onSearch" size="small" style="font-size:14px" color="#ff5151">搜索</van-button>
                 </template>
             </van-search>
-        </header>
+        </header> -->
         <section style="padding:54px 10px 50px 10px">
             <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
                 <van-list
@@ -48,7 +54,6 @@
                                         {{item.title}}
                                         <span class="lists_s">{{item.time}}</span>
                                     </p>
-					                
                                     <span style="display: flex;justify-content: space-between;">
                                         <nut-avatar
                                             size="small"
@@ -58,7 +63,7 @@
                                         </nut-avatar>
                                         <span  style="font-size:14px" >{{item.author}}</span>
                                         <span>
-                                            <van-icon size="14px" name="eye-o" />
+                                            <van-icon size="14px" name="like-o" />
                                             <span style="font-size:10px" >
                                             12
                                             </span>
@@ -87,6 +92,8 @@ export default {
     data() {
         return {
             value:'',
+            page:0,
+            now:0,
             listdata:[],
             list: [],
             loading: false,
@@ -96,7 +103,7 @@ export default {
         }
     },
     mounted() {
-        // this.getData()
+        this.getData()
     },
     methods: {
         back(){
@@ -116,67 +123,55 @@ export default {
         },
         getData(){
             this.$axios.get('/recipeList').then(res=>{
-                this.listdata = res.data
-                console.log(this.list,'list')
+                this.page = Math.ceil(res.data.length / 6);
+                console.log(this.listdata,this.page,'page')
             })
         },
         
         onLoad() {
-            this.$axios.get('/recipeList').then(res=>{
-            //     this.listdata = res.data
-                console.log(this.list,'list')
+            this.$axios.get('/recipeList',{
+                params:{
+                    status:0
+                }
+            }).then(res=>{
+                for(let i=0;i<res.data.length;i++){
+                    res.data[i].time = new Date(res.data[i].time).format("yyyy-MM-dd");
+                    // this.$axios.get('/userOne',{
+                    //     params:{
+                    //         username:res.data[i].author
+                    //     }
+                    // }).then(resp=>{
+                    //     res.data[i].avatar = resp.data[0].avatar
+                    //     res.data[i].time = new Date(res.data[i].time).format("yyyy-MM-dd");
+                    // })  
+                }
+                this.listdata = res.data
+                let len = this.listdata.length
                 if (this.refreshing) {
                     this.list = [];
                     this.refreshing = false;
                 }
-            //     for (let i = 0; i <this.listdata.length; i++) {
-            //         this.$axios.get('/userOne',{
-            //             params:{
-            //                 username:this.listdata[i].author
-            //             }
-            //         }).then(resp=>{
-            //             this.listdata[i].time = new Date(this.listdata[i].time).format("yyyy-MM-dd");
-            //             this.listdata[i].avatar = resp.data[0].avatar
-            //             // this.list.push(this.listdata[this.list.length]);
-            //             // this.videodata.push(this.listdata[i])
-            //         })
-            //     }
-                let userone = ''
-                for (let i = 0; i < res.data.length; i++) {
-                    this.$axios.get('/userOne',{
-                        params:{
-                            username:res.data[i].author
-                        }
-                    }).then(resp=>{
-                        userone = resp.data[0]
-                        res.data[i].avatar = userone.avatar
-                    })
-                    res.data[i].time = new Date(res.data[i].time).format("yyyy-MM-dd");
-                    this.list.push(res.data[this.list.length]);
+                if(this.page>1 && this.now < this.page){
+                    // console.log(this.now , this.page,'this.page')
+                    this.now++
+                    for (let i = 0; i < 6; i++) {
+                        this.list.push(this.listdata[this.list.length]);
+                    }
+                    this.page--
+                }else{
+                    this.list = this.listdata
                 }
                 this.loading = false;
-                if (this.list.length >= res.data.length) {
+                if (this.listdata.length == this.list.length) {
+                    console.log(this.now , this.page,'这里最最后最后最后后')
                     this.finished = true;
                 }
+                console.log(this.list,'this.list')
             })
-            // setTimeout(() => {
-            //     if (this.refreshing) {
-            //         this.list = [];
-            //         this.refreshing = false;
-            //     }
-            //     for (let i = 0; i < 10; i++) {
-            //         this.list.push(this.listdata[this.list.length + 1]);
-            //     }
-            //     this.loading = false;
-            //     if (this.list.length >= this.listdata.length) {
-            //         this.finished = true;
-            //     }
-            // }, 1000);
         },
         onRefresh() {
             // 清空列表数据
             this.finished = false;
-
             // 重新加载数据
             // 将 loading 设置为 true，表示处于加载状态
             this.loading = true;
@@ -196,6 +191,33 @@ export default {
     	position: fixed;
    		top: 0px;
    		z-index: 1;
+	}
+    .back{
+		height: 44px;
+	    min-width: 35px;
+	    position: absolute;
+	    display: block;
+	    top: 0px;
+	    left: 0px;
+	    background: url(../../assets/images/back_icon2.png) center no-repeat;
+	    background-size: auto 44px;
+	}
+	.find{
+		height: 32px;
+	    line-height: 32px;
+	    background: #f5f5f5;
+	    color: #aaa;
+	    border-radius: 2px;
+	    margin: 0 10px;
+	    font-size: 14px;
+	    display: block;
+	    position: relative;
+	    top: 6px; 
+	}
+	.find img{
+	    height: 14px;
+	    width: 14px;
+	    margin: 9px 4px 0px 0px;
 	}
     .title{
 		font-size: 14px;
