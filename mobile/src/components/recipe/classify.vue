@@ -5,7 +5,7 @@
     <header class="topbar">
         <!-- <mt-button icon="back" @click="back()" slot="left" class="l">返回</mt-button> -->
         <i class="back" @click="back()"></i>
-        <router-link to="/my" class="find">
+        <router-link to="/search" class="find">
             <img src="../../assets/images/findbtn.png"/>
             搜索任何你想要的
         </router-link>

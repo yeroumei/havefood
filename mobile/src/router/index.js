@@ -17,7 +17,7 @@ import recipedetail from '../components/recipe/recipedetail.vue'
 import newsdetail from '../components/discovery/discory_pro/detail_news.vue'
 import videorecipe from '../components/recipe/videorecipe.vue'
 import search from '../components/discovery/search.vue'
-// import recommend from '../components/index/recommend.vue'
+import newslist from '../components/discovery/newslist.vue'
 // import my from '../components/index/my.vue'
 
 Vue.use(Router)
@@ -30,16 +30,6 @@ export default new Router({
       component: firstbar,
       redirect: '/recommend',
       children: [
-        // {
-				// 	path:'/recommend',
-        //   name: 'recommend',
-				// 	component:recommend
-        // },
-        // {
-				// 	path:'/my',
-        //   name: 'my',
-				// 	component:my
-				// },
         {
           path: '/recommend',
           name: 'recommend',
@@ -160,6 +150,11 @@ export default new Router({
       path: '/search',
       name: 'search',
       component: search,
+    },
+    {
+      path: '/newslist',
+      name: 'newslist',
+      component: newslist,
     }
   ]
 })

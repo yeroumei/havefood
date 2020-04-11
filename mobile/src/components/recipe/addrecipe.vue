@@ -236,6 +236,7 @@ export default {
                     title: this.title,
                     cover_pic: this.previewImg,
                     author: this.$store.state.userinfo.username,
+                    avatar: this.$store.state.userinfo.avatar,
                     des: this.des,
                     type: this.selects,
                     menu: this.menu,

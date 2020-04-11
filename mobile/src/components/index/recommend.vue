@@ -14,7 +14,7 @@
 				<span></span>
 				<ul>
 					<!-- <router-link  to="/addmoving"> -->
-						<li @click="select = true">
+						<li @click="select = true" >
 							<img src="../../assets/images/picbtn.png"/>
 							晒作品
 						</li>
@@ -79,16 +79,6 @@
 		<!--推荐页面内容-->
 		<div class="content">
 			<!--图标菜单栏-->
-			<!-- <div class="menu">
-				<ul v-for="(m,i) in site" >
-					<router-link :to="m.adr">
-						<li class="menu_list" :style="{'background': 'url('+m.pic+') center top no-repeat','background-size': '100% auto'}">
-							{{m.title}}
-						</li>
-	        		</router-link>
-				</ul>
-			</div> -->
-
 			<div class="menu">
 				<ul>
 					<router-link to="/classify">
@@ -106,7 +96,7 @@
 							早餐
 						</li>
 	        		</router-link>
-					<router-link to="/my">
+					<router-link to="/newslist">
 						<li class="menu_list" id="clsbtn4">
 							文章资讯
 						</li>
@@ -118,7 +108,7 @@
 			<van-swipe :autoplay="3000" style="height: 154px;" vertical>
 				<van-swipe-item v-for="(item, index) in daydata">
 					<router-link :to=" {name:'newsdetail', params: {id:item._id}}">
-						<img v-lazy="item.cover_pic" width="100%" />
+						<img v-lazy="item.cover_pic" @click="newsDetails(item)" width="100%" />
 						<!-- <img v-if="item.step && item.style == 'video'" v-lazy="item.step[item.step.length-1].img" width="100%" /> -->
 					</router-link>
 				</van-swipe-item>
@@ -165,21 +155,10 @@ export default {
 		return {
 			show:false,
 			select:false,
-			down:[
-				{
-					"title":"晒作品",
-					"pic":"../../assets/images/picbtn.png"
-				},
-				{
-					"title":"传菜谱",
-					"pic":"../../assets/images/upbtn.png"
-				}
-			],
 			actions:[
 				{name:'图文分享',path:'/addmove_img'},
 				{name:'视频食谱',path:'/addmove_mp4'},
 				{name:'',path:''},
-
 			],
 			navs:[
 				{
@@ -196,28 +175,6 @@ export default {
 				},
 				{
 					"title":"夜宵"
-				}
-			],
-			site:[
-				{	
-					"adr":"/classify",
-					"title":"菜谱分类",
-					"pic":"../../assets/images/site1.png"
-				},
-				{	
-					"adr":"/video",
-					"title":"视频菜谱",
-					"pic":"../../assets/images/site2.png"
-				},
-				{	
-					"adr":"/eatingwords",
-					"title":"早餐",
-					"pic":"../../assets/images/site3.png"
-				},
-				{	
-					"adr":"/video",
-					"title":"附近",
-					"pic":"../../assets/images/site4.png"
 				}
 			],
 			listdata:[],
@@ -243,6 +200,11 @@ export default {
 		this.getDay()  // 今日推荐
 
 	},
+	computed:{
+		newsdetails(){
+			return this.$store.state.newsdetails
+		}
+	},
 	methods:{
 		downshow(){
 			this.show=!this.show
@@ -252,11 +214,11 @@ export default {
 			this.$router.push({path:item.path})
 			this.select = false
 		},
-		tabtn(index){
-			this.record = this.listdata[index]
-			console.log(index,this.record,'jjjjj')
-			this.$router.push({path:'/my'})
-		},
+		// tabtn(index){
+		// 	this.record = this.listdata[index]
+		// 	console.log(index,this.record,'jjjjj')
+		// 	this.$router.push({path:'/my'})
+		// },
 		rand(arr,ranNum){ //分别随机抽取2推荐的每日三餐，避免抽取重复
 			// var ranNum = 2;
 			var hash = {};
@@ -273,8 +235,12 @@ export default {
 		},
 		getData(){
 			this.likedata = []
-			this.$axios.get('/recipeList').then(res=>{
-				// console.log(res.data)
+			this.$axios.get('/recipeList',{
+				params:{
+					status:0 //只显示已发布的
+				}
+			}).then(res=>{
+				console.log(res.data,'只显示已发布的')
 				let breakfast = []
 				let lunch = []
 				let dinner = []
@@ -309,10 +275,19 @@ export default {
 			})
 		},
 		getDay(){
-			this.$axios.get('/newsList').then(res=>{
+			this.$axios.get('/newsSend',{
+				params:{
+					status:0 //只显示已发布的
+				}
+			}).then(res=>{
 				console.log(res.data,'新闻')
-				this.daydata = res.data
+				this.daydata = this.rand(res.data,3)
 			})
+		},
+		// 查看今日推荐详情
+		newsDetails(item){
+			console.log(item,'item的详情')
+			this.$store.commit('getnewsdetails',{newsdetails:item}) 
 		}
 	}
 }

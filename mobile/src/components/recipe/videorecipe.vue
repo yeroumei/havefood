@@ -21,15 +21,13 @@
 							fit="cover"
 							:src="item.step[item.step.length-1].img"
 						/>
-						<!-- <img class="lists_img" :src="item.step[item.step.length-1].img"/> -->
-						<!-- <span class="lists_t">{{item.time}}</span> -->
 					</p>
 					<p class="lists_p">{{item.title}}</p>
                     
 					<span class="lists_s">{{item.time}}</span>
-                        <van-icon size="20px" name="eye-o" style="position: absolute;bottom:14px;right:65px;" />
+                        <van-icon name="like-o" style="position: absolute;bottom:14px;right:65px;" />
                         <span style="position: absolute;bottom:17px;right:6px;font-size:12px">
-                            浏览 12 次
+                            获赞 12 次
                         </span>
                         <nut-avatar
                             style="position: absolute;bottom:14px;right:165px;" 
