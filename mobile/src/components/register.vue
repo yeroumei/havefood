@@ -64,7 +64,6 @@ export default {
           this.$axios.post('/register',{
               username:username,
               password:password,
-              number:number,
               type: 'normal',
           }).then(res =>{
               console.log(res.data)
