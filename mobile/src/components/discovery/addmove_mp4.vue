@@ -14,15 +14,15 @@
                 show-word-limit
             />
             <div style="width:100%;padding-bottom：60%;">
+                <!-- 限制300M -->
                 <nut-uploader
                     name="file"
                     url="/api/upload"
+                    :maxSize="314572800"
                     :isPreview="true"
                     :acceptType = "['video/mp4']"
                     @success="onSuccess"
                     @fail="onFail"
-                    typeError="对不起，不支持上传该类型文件！"
-                    limitError="对不起，文件大小超过限制！"
                     class="imgbox"
                 >
                 <div style="padding:1em;height:13em" v-if="previewImg" >
@@ -49,7 +49,7 @@ export default {
             fileList:[],
             media:[],
             flagnum:'',
-            previewImg:''
+            previewImg:'',
         }
     },
     methods: {
@@ -122,6 +122,7 @@ export default {
                 this.$axios.post('/addMoves',{
                     // id: Number(Math.random().toString().substr(3,length) + Date.now()).toString(36),
                     author : this.$store.state.userinfo.username,
+                    avatar : this.$store.state.userinfo.avatar,
                     media : medias, 
                     content : this.content, 
                     time : time, 

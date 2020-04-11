@@ -18,7 +18,7 @@
                         {{record.comments}}
                     </a-form-item>
                     <a-form-item label="点赞数" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }">
-                        {{record.likes}}
+                        {{record.loves ? record.loves.length : ''}}
                     </a-form-item>
                 </a-col>
                 <a-col :span="16">

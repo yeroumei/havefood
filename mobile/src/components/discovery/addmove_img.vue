@@ -91,6 +91,7 @@ export default {
                 this.$axios.post('/addMoves',{
                     // id: Number(Math.random().toString().substr(3,length) + Date.now()).toString(36),
                     author : this.$store.state.userinfo.username,
+                    avatar : this.$store.state.userinfo.avatar,
                     media : medias, 
                     content : this.content, 
                     time : time, 

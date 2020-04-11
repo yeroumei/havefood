@@ -207,7 +207,7 @@ export default {
                 }
             },
             {title:'评论数',dataIndex:'comments',key:'comments'},
-            {title:'点赞数',dataIndex:'loves',key:'loves'},
+            {title:'点赞数',dataIndex:'loves.length',key:'loves.length'},
             {title:'状态',dataIndex:'status',key:'status',
                 scopedSlots: { customRender: 'status' },
                 filters: [
