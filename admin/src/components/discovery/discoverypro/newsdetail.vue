@@ -3,8 +3,8 @@
         <div class="modal">
             <a-descriptions title="" :column="4">
                 <a-descriptions-item label="发布者">{{record.author}}</a-descriptions-item>
-                <a-descriptions-item label="浏览数">{{record.author}}</a-descriptions-item>
-                <a-descriptions-item label="点赞数">{{record.author}}</a-descriptions-item>
+                <a-descriptions-item label="收藏数">{{record.collects ? record.collects.length : ''}}</a-descriptions-item>
+                <a-descriptions-item label="点赞数">{{record.loves ? record.loves.length : ''}}</a-descriptions-item>
                 <a-descriptions-item label="时间">{{new Date(record.time).toLocaleString()}}</a-descriptions-item>
             </a-descriptions>
             <a-descriptions title="" :column="1">
@@ -17,7 +17,6 @@
                     <img style="padding-bottom:1em"  width="75%" v-for="i in item.img" :src="i" alt />
                 </a-descriptions-item>
             </a-descriptions>
-            
         </div>
     </a-modal>
 </template>

@@ -167,6 +167,7 @@ export default {
                         cover_pic : this.imageUrl, 
                         title : this.form.title, 
                         author : this.$store.state.islogin.username, 
+                        avatar : this.$store.state.islogin.avatar,
                         media : this.form.newsdata, 
                         time : new Date(),
                         status: 0

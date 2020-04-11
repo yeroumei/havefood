@@ -172,8 +172,8 @@ export default {
             {title:'发布者',dataIndex:'author',key:'author'},
             // {title:'素材',dataIndex:'cover_pic',key:'cover_pic',scopedSlots: { customRender: 'cover_pic' }},
             {title:'发布时间',dataIndex:'time',key:'time'},
-            {title:'浏览数',dataIndex:'visits',key:'visits'},
-            {title:'点赞数',dataIndex:'loves',key:'loves'},
+            {title:'收藏数',dataIndex:'collects.length',key:'collects.length'},
+            {title:'点赞数',dataIndex:'loves.length',key:'loves.length'},
             {title:'状态',dataIndex:'status',key:'status',
                 scopedSlots: { customRender: 'status' },
                 filters: [

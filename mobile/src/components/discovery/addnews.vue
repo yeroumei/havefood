@@ -133,6 +133,7 @@ export default {
                         cover_pic : this.previewImg, 
                         title : this.title, 
                         author : this.$store.state.userinfo.username, 
+                        avatar : this.$store.state.userinfo.avatar,
                         media : this.newsdata, 
                         time : new Date(),
                         status : 2,
@@ -142,7 +143,9 @@ export default {
                             this.$router.replace({path:'/recommend'})
                         },1200)
                     })
-                })
+                }).catch(() => {
+                    this.$router.go(-1)
+                });
                     
             }else{
                 this.$router.go(-1)
