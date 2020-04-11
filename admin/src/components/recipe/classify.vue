@@ -318,9 +318,9 @@ export default {
                             console.log(res.data)
                         })
                     }
-                    setTimeout(()=>{ //异步，删除后前端也要去除选中项
-                        this.filters = ''
-                    },1000)
+                    // setTimeout(()=>{ //异步，删除后前端也要去除选中项
+                    //     this.filters = ''
+                    // },1000)
                 },
                 onCancel() {},
             });

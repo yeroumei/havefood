@@ -206,6 +206,7 @@ export default {
                             title: values.title,
                             cover_pic: values.cover_pic,
                             author: this.$store.state.islogin.username,
+                            avatar: this.$store.state.islogin.avatar,
                             des: values.des,
                             type: values.type,
                             menu: values.menu,

@@ -17,7 +17,7 @@ NutUI.install(Vue);
 import { Picker, TreeSelect, Field, Popup, Uploader, Cell, SwipeCell, 
        Button, Form, Icon, Image, ActionSheet, Step, Steps,Divider,
        Tab, Tabs, Search, Swipe, SwipeItem, Lazyload, List, PullRefresh,
-       Col, Row  } from 'vant';
+       Col, Row, ImagePreview, Card, Tag} from 'vant';
 
 Vue.use(Picker)
        .use(TreeSelect)
@@ -31,19 +31,18 @@ Vue.use(Picker)
        .use(Icon)
        .use(Image)
        .use(ActionSheet)
-       .use(Step)
-       .use(Steps)
+       .use(Step).use(Steps)
        .use(Divider)
-       .use(Tab)
-       .use(Tabs)
+       .use(Tab).use(Tabs)
        .use(Search)
-       .use(Swipe)
-       .use(SwipeItem)
+       .use(Swipe).use(SwipeItem)
        .use(Lazyload)
        .use(List)
        .use(PullRefresh)
-       .use(Col)
-       .use(Row)
+       .use(Col).use(Row)
+       .use(ImagePreview)
+       .use(Card)
+       .use(Tag)
 //引入swiper轮播插件
 import Swiper from 'swiper';
 import VueAwesomeSwiper from 'vue-awesome-swiper';
@@ -100,6 +99,7 @@ router.beforeEach((to, from, next) => {
        //判断要去的路由有没有requiresAuth
        if (to.meta.requiresAuth) {
               if (token) {
+                     console.log(token,'token 存在啊')
                      next();
               } else {
                      next({
@@ -111,17 +111,17 @@ router.beforeEach((to, from, next) => {
               next();//如果无需token,那么随它去吧
        }
 });
-router.afterEach((to, from, next) => {  //进入个人中心页面之前刷新一下页面
-       var reloaded = window.localStorage.getItem('reloaded') || '';
-       if (reloaded == '') {
-              if (from.path == '/login' || from.path == '/') {
-                     window.location.reload();
-                     window.localStorage.setItem('reloaded', 'yes');
-              }
-       } else {
-              window.localStorage.setItem('reloaded', 'yes');
-       }
-})
+// router.afterEach((to, from, next) => {  //进入个人中心页面之前刷新一下页面
+//        var reloaded = window.localStorage.getItem('reloaded') || '';
+//        if (reloaded == '') {
+//               if (from.path == '/login' || from.path == '/') {
+//                      window.location.reload();
+//                      window.localStorage.setItem('reloaded', 'yes');
+//               }
+//        } else {
+//               window.localStorage.setItem('reloaded', 'yes');
+//        }
+// })
 
 //日期格式化
 Date.prototype.format = function (format) {
