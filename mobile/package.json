@@ -13,7 +13,7 @@
     "@nutui/nutui": "^2.2.1",
     "axios": "^0.19.2",
     "mint-ui": "^2.2.13",
-    "swiper": "^4.5.0",
+    "swiper": "^6.5.1",
     "vant": "^2.5.7",
     "vue": "^2.6.11",
     "vue-awesome-swiper": "^3.1.3",
